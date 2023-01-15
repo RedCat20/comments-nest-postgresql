@@ -1,0 +1,12 @@
+.content {
+  background: #fffffc;
+  min-height: calc(100vh - 48px);
+  padding: 30px 60px;
+  @media screen and (max-width: 767px) {
+    padding: 20px 30px;
+  }
+}
+
+.block {
+  margin-bottom: 20px;
+}
