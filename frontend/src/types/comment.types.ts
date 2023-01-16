@@ -6,9 +6,9 @@ export type CreateCommentDto = {
 
     file?: string | null;
 
-    rootId?: number;
+    rootId?: number | null;
     level: number;
-    parentId?: number;
+    parentId?: number | null;
     answers: number[];
 }
 

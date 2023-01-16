@@ -2,11 +2,11 @@ import {FC, MouseEvent, useEffect, useState} from 'react';
 import styles from './App.module.scss';
 import {Container, ThemeProvider} from "@mui/material";
 import {theme} from "../assets/theme";
-import Top from "./Top/Top";
+import TopPanel from "./TopPanel/TopPanel";
 import Form from "./Form/Form";
 import Comments from "./Comments/Comments";
-import {CreateCommentDto, CreateCommentDtoWithId} from "../data/types";
-import {CommentApi} from "../data/axiosInstance";
+import {CreateCommentDtoWithId} from "../types/comment.types";
+import {CommentApi} from "../axios/CommentApi";
 import DialogAlert from "./DialogAlert/DialogAlert";
 import * as React from "react";
 import {createViewArrayOfComments} from "../helpers/create.view.array.of.comments";
@@ -18,7 +18,6 @@ const App:FC = () => {
 
     const [currentPage, setCurrentPage] = useState<number>(1);
 
-    //const setAllComments = async (updatedComments: CreateCommentDtoWithId[]) => {
     const setAllComments = async () => {
         const comments = await CommentApi.getAllComments(currentPage);
         setComments(comments.rows);
@@ -27,7 +26,6 @@ const App:FC = () => {
 
     const getComments = async () => {
         const comments = await CommentApi.getAllComments(currentPage);
-        console.log('getted comments', comments)
         setComments(comments.rows);
         setCount(comments.count);
     }
@@ -36,9 +34,7 @@ const App:FC = () => {
     },[currentPage]);
 
     useEffect(() => {
-        //const newArray =
         createViewArrayOfComments([...comments]);
-        //console.log('new array: ', newArray);
     }, [comments]);
 
     const onAddCommentHandler = (e: MouseEvent<HTMLButtonElement>) => {
@@ -51,7 +47,7 @@ const App:FC = () => {
           <Container sx={{background: '#cccccc', minHeight: '100vh', padding: '24px'}}>
 
             <div className={styles.content}>
-               <Top onAddCommentCallback={onAddCommentHandler}/>
+               <TopPanel onAddCommentCallback={onAddCommentHandler}/>
 
                 <Comments comments={comments} count={count} setComments={setAllComments} setCurrentPage={setCurrentPage}/>
             </div>
@@ -59,7 +55,7 @@ const App:FC = () => {
           </Container>
 
           <DialogAlert open={open} setOpen={setOpen} >
-              <Form title="Add a comment" comments={comments} setComments={setAllComments} parent={null} specialCallback={() => setOpen(false)}/>
+              <Form title="Add a comment" setComments={setAllComments} parent={null} specialCallback={() => setOpen(false)}/>
           </DialogAlert>
 
       </ThemeProvider>
