@@ -1,12 +1,12 @@
 import {FC, MouseEvent} from "react";
 import {Box, Button, Typography} from "@mui/material";
-import styles from "./Top.module.scss";
+import styles from "./TopPanel.module.scss";
 
 interface Props {
     onAddCommentCallback: (event: MouseEvent<HTMLButtonElement>) => void;
 }
 
-const Top:FC<Props> = ({onAddCommentCallback}) => {
+const TopPanel:FC<Props> = ({onAddCommentCallback}) => {
     return (
         <Box className={styles.top}>
             <Typography align="center" variant="h5">
@@ -22,4 +22,4 @@ const Top:FC<Props> = ({onAddCommentCallback}) => {
     );
 };
 
-export default Top;
+export default TopPanel;

@@ -31,9 +31,9 @@ export const imageFileFilter = (
     },
     callback: (error: Error | null, acceptFile: boolean) => void,
 ) => {
-    if (!file.originalname.match(/\.(jpg|jpeg|png|webp|gif|avif)$/)) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif|txt)$/)) {
         return callback(
-            new BadRequestException('おいおい、画像だけを送ってくれよな？'),
+            new BadRequestException('Bad image uploading request.'),
             false,
         );
     }

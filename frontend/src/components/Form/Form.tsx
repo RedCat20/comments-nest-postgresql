@@ -1,38 +1,35 @@
-import {ChangeEvent, FC, FormEvent, MouseEvent, useEffect, useRef, useState} from 'react';
+import {FC, FormEvent, useState} from 'react';
 import {Box, Button, FormControl, FormHelperText, Paper, TextField, Typography} from "@mui/material";
 import styles from "./Form.module.scss";
 import {validateForm} from '../../helpers/validate.form';
-import {CommentApi, FilesApi} from "../../data/axiosInstance";
-import {CommentWithCaptcha, ConvertedCommentDto, CreateCommentDto, CreateCommentDtoWithId} from "../../data/types";
+import {CommentApi, FilesApi} from "../../axios";
+import {CommentWithCaptcha, ConvertedCommentDto} from "../../types/comment.types";
 import captchaImg from "../../assets/img/captcha.jpg";
-import {getParentComment} from "../../helpers/get.parent.helper";
+import FileBlock from "./FileBlock/FileBlock";
+import TextareaBlock from "./TextAreaBlock/TextareaBlock";
+import {IFormData} from "../../types/form.data";
+
+export const CORRECT_CAPTCHA = 'smwm';
 
 interface Props {
     title?: string;
+    title2?: string;
     setIsShow?: (value: boolean) => void;
-    //comments: CreateCommentDtoWithId[];
-    comments: ConvertedCommentDto[];
-    //setComments: (value: CreateCommentDtoWithId[]) => void;
     setComments: () => void;
     specialCallback?: any;
-    //parent?: CreateCommentDtoWithId | null;
     parent?: ConvertedCommentDto | null;
 }
 
 const Form:FC<Props> = ({title,
                             setIsShow,
-                            comments = [],
                             setComments,
                             specialCallback,
-                            parent
+                            parent,
+                            title2= 'Preview'
 }) => {
+    const [file, setFile] = useState<File | null>(null);
 
-    const textRef = useRef<any>(null);
-    const [text, setText] = useState('');
-
-    const [file, setFile] = useState<any>(null);
-
-    const [data, setData] = useState<any>({
+    const [data, setData] = useState<IFormData>({
         userName: '',
         email: '',
         homePage: '',
@@ -40,19 +37,7 @@ const Form:FC<Props> = ({title,
         text: '',
     });
 
-    useEffect(() => {
-        setText('')
-    },[]);
-
     const updateData = (e: any) => {
-        console.log(
-            {
-                ...data,
-                [e.target.name]: e.target.value
-            }
-        )
-
-        // setText(e.target.value);
         setData({
             ...data,
             [e.target.name]: e.target.value
@@ -82,12 +67,8 @@ const Form:FC<Props> = ({title,
 
         if (isError || isEmpty) { return;  }
 
-        console.log('FILE: ', file);
-
         const imageFormData = new FormData();
         if (file) {
-            //const imageFile = file.imageURL?.[0];
-            const imageFile = file.imageURL?.[0];
             imageFormData.append('files', file);
         }
 
@@ -109,16 +90,11 @@ const Form:FC<Props> = ({title,
             console.log(err);
         }
 
-        //if (parent) {
-           // const parentComment = await getParentComment(parent.id);
-           // console.log('parentComment', parentComment);
-        //}
-
         try {
             let comment: CommentWithCaptcha;
 
             if (parent?.id) {
-                comment = await CommentApi.addComment({...data, file: fileName, rootId: parent.rootId, parentId: parent.id, level: (parent.level + 1)});
+                comment = await CommentApi.addComment({...data, answers: [], file: fileName, rootId: parent.rootId, parentId: parent.id, level: (parent.level + 1)});
 
                 let parentComment = await CommentApi.getOneComment(parent.id.toString());
 
@@ -128,37 +104,21 @@ const Form:FC<Props> = ({title,
                     answers = [comment.id];
                 } else {
                     const arr = [...parentComment.answers];
-                    // console.log('ans: ', ans);
-                    // let arr = [];
-                    // for (let item in ans) {
-                    //     if (item !== 'length') {
-                    //         arr.push(Number(item));
-                    //     }
-                    // }
                     arr.push(comment.id);
-                    console.log('arr ans: ', arr);
                     answers = arr;
                 }
 
-                // await CommentApi.updateComment({...parentComment, answers: [99999]}, parent.id)
                 await CommentApi.updateComment({...parentComment, answers: answers}, parent.id)
             } else {
-                comment = await CommentApi.addComment({...data, file: fileName, parentId: null, level: 1, rootId: null});
-                comment = await CommentApi.updateComment({...data, parentId: null, level: 1, rootId: comment.id}, comment.id);
+                comment = await CommentApi.addComment({...data, answers: [], file: fileName, parentId: null, level: 1, rootId: null});
+                comment = await CommentApi.updateComment({...data, answers: comment.answers, parentId: null, level: 1, rootId: comment.id}, comment.id);
             }
 
-            console.log('Added comment', comment);
+            const editedComment: any = {...comment};
+            if (editedComment.captcha)
+                delete editedComment.captcha;
 
-            //if (parent?.id) {
-                const editedComment: any = {...comment};
-                if (editedComment.captcha)
-                    delete editedComment.captcha;
-
-                setComments();
-            //}
-           // else {
-            //    setComments([comment]);
-           // }
+            setComments();
 
         } catch(err) {
             console.log(err);
@@ -170,106 +130,75 @@ const Form:FC<Props> = ({title,
         }
     }
 
-    const addTagToText = (tag: string) => {
-
-        const newText = text.concat(tag);
-        setText(newText);
-
-        // setData({
-        //     ...data,
-        //     text: newText
-        // })
-    }
-
-    const changeFileHandler = (e: any) => {
-        // @ts-ignore
-        console.log('File change e: ', e.target.value);
-    }
-
     return (
         <Paper className={styles.form}>
+
             <div className={styles.block}>
                 <Typography align="center" variant="h6">{title}</Typography>
             </div>
 
             <form onSubmit={onSubmitHandler}>
 
+                {/* User name */}
                 <div className={styles.block}>
                     <FormControl fullWidth>
-                        <TextField error={enterUserNameError} name="userName" type="text" label="User name *" variant="outlined" onChange={updateData}/>
+                        <TextField size="small" error={enterUserNameError} name="userName" type="text" label="User name *" variant="outlined" onChange={updateData}/>
                         <FormHelperText>Numbers and latin letters only.</FormHelperText>
                         {enterUserNameError && <div className={styles.error}>Not valid user name</div>}
                     </FormControl>
                 </div>
 
+                {/* Email */}
                 <div className={styles.block}>
                     <FormControl fullWidth>
-                        <TextField error={enterEmailError} name="email" type="text" fullWidth label="Email *" variant="outlined" onChange={updateData}/>
+                        <TextField size="small" error={enterEmailError} name="email" type="text" fullWidth label="Email *" variant="outlined" onChange={updateData}/>
                         <FormHelperText>Email format such as myemail@mail.com.</FormHelperText>
                         {enterEmailError && <div className={styles.error}>Not valid email</div>}
                     </FormControl>
                 </div>
 
-
+                {/* Home page */}
                 <div className={styles.block}>
                     <FormControl fullWidth>
-                        <TextField error={enterHomePageError} name="homePage" type="text" fullWidth label="Homepage" variant="outlined" onChange={updateData}/>
+                        <TextField size="small" error={enterHomePageError} name="homePage" type="text" fullWidth label="Homepage" variant="outlined" onChange={updateData}/>
                         <FormHelperText>Url format such as https://mysite.com.</FormHelperText>
                         {enterHomePageError && <div className={styles.error}>Not valid url</div>}
                     </FormControl>
                 </div>
 
-
+                {/* Captcha */}
                 <div className={styles.block}>
                     <Box className={`${styles.block} ${styles.captcha}`}>
-                        <img src={captchaImg} alt="Captcha *"/>
+                        <img src={captchaImg} alt="Captcha"/>
                         <FormControl fullWidth>
-                            <TextField error={enterCaptchaError} name="captcha" type="text" label="Captcha" variant="outlined" onChange={updateData}/>
+                            <TextField size="small" error={enterCaptchaError} name="captcha" type="text" label="Captcha *" variant="outlined" onChange={updateData}/>
                             <FormHelperText>Please enter the captcha from picture.</FormHelperText>
                             {enterCaptchaError && <div className={styles.error}>Not valid captcha</div>}
                         </FormControl>
                     </Box>
                 </div>
 
+                {/* Text */}
                 <div className={styles.block}>
-
-                    <div className={styles.tags}>
-                        <button type="button" onClick={(e: MouseEvent<HTMLButtonElement>) => addTagToText(`<i></i>`)}>[ i ]</button>
-                        <button type="button" onClick={(e: MouseEvent<HTMLButtonElement>) => addTagToText(`<strong></strong>`)}>[ strong ]</button>
-                        <button type="button" onClick={(e: MouseEvent<HTMLButtonElement>) => addTagToText(`<code></code>`)}>[ code ]</button>
-                        <button type="button" onClick={(e: MouseEvent<HTMLButtonElement>) => addTagToText(`<a href="" title=""></a>`)}>[ a ]</button>
-                    </div>
-
-                    <FormControl fullWidth>
-                        <TextField ref={textRef}
-                                   name="text"
-                                   type="text"
-                                   label="Comment text *"
-                                   multiline
-                                   rows={8}
-                                   value={text}
-                                   error={enterTextError}
-                                   onChange={(e: ChangeEvent<HTMLTextAreaElement>) => { updateData(e); setText(e.target.value)} }
-                        />
-                    </FormControl>
-
-                    <FormHelperText>
-                        You can use these tags <br/> <span className="bold-text"> {'<a href=”” title=””> </a> <code> </code> <i> </i> <strong> </strong>'} </span>
-                    </FormHelperText>
-                    {enterTextError && <div className={styles.error}>Not valid text</div>}
-
+                    <TextareaBlock updateData={updateData} enterTextError={enterTextError} setEnterTextError={setEnterTextError}/>
                 </div>
 
+                {/* File */}
+                <div className={styles.block}>
+                   <FileBlock file={file} setFile={setFile}/>
+                </div>
+
+                {/* Validation result */}
                 {isEmptyRequiredFields && <div className={`${styles.error} ${styles.big}`}>There are empty required fields!</div>}
 
-
-                <input onClick={changeFileHandler}
-                       type="file"
-                       name="file"
-                       onChange={(e: ChangeEvent<HTMLInputElement> & {target: {files: any}}) => { setFile(e.target.files[0]) }}/>
-
-
-                <Box sx={{marginTop: '30px', textAlign: 'center'}}>
+                <div className={`${styles.sendBtnWrap}`}>
+                    <Button
+                        type="button"
+                        sx={{width: '200px'}}
+                        variant="contained"
+                        color="info">
+                        {title2}
+                    </Button>
                     <Button
                         type="submit"
                         sx={{width: '200px'}}
@@ -277,7 +206,7 @@ const Form:FC<Props> = ({title,
                         color="primary">
                         {title}
                     </Button>
-                </Box>
+                </div>
 
             </form>
 

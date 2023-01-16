@@ -1,4 +1,4 @@
-import {ConvertedCommentDto, CreateCommentDtoWithId} from "../data/types";
+import {ConvertedCommentDto, CreateCommentDtoWithId} from "../types/comment.types";
 
 export const createViewArrayOfComments = (comments: CreateCommentDtoWithId[]) => {
     //const mainNodes: ConvertedCommentDto[] = comments.filter(item => item.parentId === null);

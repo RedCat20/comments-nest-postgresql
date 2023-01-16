@@ -1,4 +1,4 @@
-import {CommentApi} from "../data/axiosInstance";
+import {CommentApi} from "../axios";
 
 export const getParentComment = async (parentId: any) => {
     try {

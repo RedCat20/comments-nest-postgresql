@@ -4,23 +4,17 @@ import styles from './Comment.module.scss';
 import DialogAlert from "../DialogAlert/DialogAlert";
 import * as React from "react";
 import Form from "../Form/Form";
-import {ConvertedCommentDto, CreateCommentDto, CreateCommentDtoWithId} from "../../data/types";
-import {CommentApi} from "../../data/axiosInstance";
+import {ConvertedCommentDto, CreateCommentDto} from "../../types/comment.types";
+import {CommentApi} from "../../axios";
 
 interface Props {
-    //comment: CreateCommentDtoWithId;
     comment: ConvertedCommentDto;
-    //comments: CreateCommentDtoWithId[];
-    comments: ConvertedCommentDto[];
-    //setComments: (value: CreateCommentDtoWithId[]) => void;
     setComments: () => void;
-
     renderComments: any;
-
     children?: ReactNode;
 }
 
-const Comment:FC<Props> = ({comment,setComments,comments = [], children = null}) => {
+const Comment:FC<Props> = ({comment,setComments, children = null}) => {
 
     //console.log('comment: ', comment)
 
@@ -62,7 +56,7 @@ const Comment:FC<Props> = ({comment,setComments,comments = [], children = null})
                      borderLeft: `${comment.level > 0 ? '2px solid silver' : 'none'}`,
                      paddingLeft: `${comment.level > 0 ? '10px' : '0'}`,
                 }}>
-                <Box className={styles.top}  style={{background: `${comment.parentId === null ? '#e4eefa' : '#f3f3f3'}`}}>
+                <Box className={styles.top} style={{background: `${comment.parentId === null ? '#e4eefa' : '#f3f3f3'}`}}>
                     <div className={styles.info}>
                         <Avatar/>
                         <Typography variant="subtitle1" sx={{fontWeight: 'bold'}}>
@@ -80,7 +74,7 @@ const Comment:FC<Props> = ({comment,setComments,comments = [], children = null})
 
                 <div>File: {comment.file}</div>
 
-                <Box>
+                <Box sx={{marginTop: '20px'}}>
                     <Button
                         sx={{width: '200px'}}
                         onClick={() => setOpen(true)}
@@ -94,17 +88,13 @@ const Comment:FC<Props> = ({comment,setComments,comments = [], children = null})
                     {answers?.map((answer: any, idx: number) => {
                         return <div key={idx}>parent for: {answer} </div>
                     })}
-
-                    {/*{comment?.answers?.map((answer,idx) => {*/}
-                    {/*    return <div key={idx}>{answer}</div>*/}
-                    {/*})}*/}
                 </Box>
             </Box>
 
             {children}
 
             <DialogAlert open={open} setOpen={setOpen} >
-                <Form title="Add an answer" parent={comment} comments={comments} specialCallback={() => setOpen(false)} setComments={setComments}/>
+                <Form title="Add an answer" parent={comment} specialCallback={() => setOpen(false)} setComments={setComments}/>
             </DialogAlert>
         </>
     );
