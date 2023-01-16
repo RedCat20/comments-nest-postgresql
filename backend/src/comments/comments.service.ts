@@ -6,14 +6,11 @@ import {InjectModel} from "@nestjs/sequelize";
 @Injectable()
 export class CommentsService {
 
-    // constructor(@InjectModel(Comment) private commentRepository: typeof Comment) {}
     constructor(@InjectModel(Comment) private commentRepository) {}
 
     async createComment(dto: CreateCommentDto)  {
         console.log('dto: ', dto);
         let comment = await this.commentRepository.create(dto);
-        // await comment.set('answers', [1,2]); /// $set не робить, просто set не записує в базу
-        //return this.commentRepository.save(comment);
         return comment;
     }
 
@@ -25,15 +22,10 @@ export class CommentsService {
             plain: true
         });
 
-        // await comment.set('answers', [1,2]); /// $set не робить, просто set не записує в базу
-
-        //return this.commentRepository.save(comment);
         return comment;
     }
 
     async getAllComments(page) {
-        // return await this.commentRepository.findAll();
-        // const comments = await this.commentRepository.findAll(
         let limit = 25
         let offset = 0 + (page - 1) * limit;
 
@@ -48,17 +40,10 @@ export class CommentsService {
                 //limit: 25
             }
         );
-        /// console.log('comments: ', comments)
-        /// щоб підтягувалися всі поля пов'язані з цим, наприклад ролі юзера
         return comments;
     }
 
     async getOneComment(id: string) {
-        //console.log('id: ', id)
-
-        //this.usersRepository.query('SELECT * FROM "users" WHERE id = 258')
-
-        //return await this.commentRepository.findOne({id: id});
         return await this.commentRepository.findOne({ where: { id: id } });
     }
 

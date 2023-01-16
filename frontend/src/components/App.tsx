@@ -18,7 +18,8 @@ const App:FC = () => {
 
     const [currentPage, setCurrentPage] = useState<number>(1);
 
-    const setAllComments = async (updatedComments: CreateCommentDtoWithId[]) => {
+    //const setAllComments = async (updatedComments: CreateCommentDtoWithId[]) => {
+    const setAllComments = async () => {
         const comments = await CommentApi.getAllComments(currentPage);
         setComments(comments.rows);
         setCount(comments.count);
@@ -35,8 +36,9 @@ const App:FC = () => {
     },[currentPage]);
 
     useEffect(() => {
-        const newArray = createViewArrayOfComments(comments);
-        console.log('new array: ', newArray);
+        //const newArray =
+        createViewArrayOfComments([...comments]);
+        //console.log('new array: ', newArray);
     }, [comments]);
 
     const onAddCommentHandler = (e: MouseEvent<HTMLButtonElement>) => {

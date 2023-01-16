@@ -1,21 +1,27 @@
-import {BelongsTo, Column, DataType, ForeignKey, Model, Table} from "sequelize-typescript";
+import {Column, DataType, Model, Table} from "sequelize-typescript";
 
 interface CommentCreationAttrs {
-    userName?: string;
-    email?: string;
-    captcha?: string;
-    text?: string;
+    userName: string;
+    email: string;
+    homePage?: string;
+    text: string;
+
+    file?: string;
+
+    rootId?: number;
+    level: number;
+    parentId?: number;
+    answers?: number[];
 }
 
-//@Table({tableName: 'comments'})
-@Table
+@Table({tableName: 'comments'})
+//@Table // with default name
 export class Comment extends Model<Comment, CommentCreationAttrs> {
 
-    // @ForeignKey(() => Comment)
     @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true})
     id: number;
 
-    @Column({type: DataType.STRING, unique: true, allowNull: false, defaultValue: 'Anonym'})
+    @Column({type: DataType.STRING, allowNull: false})
     userName: string;
 
     @Column({type: DataType.STRING, allowNull: false})
@@ -25,23 +31,20 @@ export class Comment extends Model<Comment, CommentCreationAttrs> {
     homePage: string;
 
     @Column({type: DataType.STRING, allowNull: false})
-    captcha: string;
-
-    @Column({type: DataType.STRING, allowNull: false})
     text: string;
 
-    //@Column({type: DataType.ARRAY(DataType.INTEGER), allowNull: true})
-    //answers: number[];
+    @Column({type: DataType.STRING, allowNull: true, defaultValue: null})
+    file: string | null;
 
-    @Column({type: DataType.ARRAY(DataType.INTEGER), allowNull: true})
-    answers: number[];
-
-    @Column({type: DataType.INTEGER, allowNull: true})
-    parentId: number;
+    @Column({type: DataType.INTEGER, allowNull: true, defaultValue: null})
+    rootId: number | null;
 
     @Column({type: DataType.INTEGER, allowNull: false})
     level: number;
 
-    // @BelongsTo(() => Comment)
-    // answer: Comment;
+    @Column({type: DataType.INTEGER, allowNull: true, defaultValue: null})
+    parentId: number | null;
+
+    @Column({type: DataType.ARRAY(DataType.INTEGER), allowNull: false, defaultValue: []})
+    answers: number[];
 }

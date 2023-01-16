@@ -2,18 +2,21 @@ import {ChangeEvent, FC, FormEvent, MouseEvent, useEffect, useRef, useState} fro
 import {Box, Button, FormControl, FormHelperText, Paper, TextField, Typography} from "@mui/material";
 import styles from "./Form.module.scss";
 import {validateForm} from '../../helpers/validate.form';
-import {CommentApi} from "../../data/axiosInstance";
-import {CreateCommentDto, CreateCommentDtoWithId} from "../../data/types";
+import {CommentApi, FilesApi} from "../../data/axiosInstance";
+import {CommentWithCaptcha, ConvertedCommentDto, CreateCommentDto, CreateCommentDtoWithId} from "../../data/types";
 import captchaImg from "../../assets/img/captcha.jpg";
 import {getParentComment} from "../../helpers/get.parent.helper";
 
 interface Props {
     title?: string;
     setIsShow?: (value: boolean) => void;
-    comments: { captcha: string; level: number; answers?: number[]; text: string; id: number; userName: string; homePage: string; email: string; parentId?: number }[];
-    setComments: (value: { captcha: string; level: number; answers?: number[]; text: string; id: number; userName: string; homePage: string; email: string; parentId?: number }[]) => void;
+    //comments: CreateCommentDtoWithId[];
+    comments: ConvertedCommentDto[];
+    //setComments: (value: CreateCommentDtoWithId[]) => void;
+    setComments: () => void;
     specialCallback?: any;
-    parent?: CreateCommentDtoWithId | null;
+    //parent?: CreateCommentDtoWithId | null;
+    parent?: ConvertedCommentDto | null;
 }
 
 const Form:FC<Props> = ({title,
@@ -26,6 +29,8 @@ const Form:FC<Props> = ({title,
 
     const textRef = useRef<any>(null);
     const [text, setText] = useState('');
+
+    const [file, setFile] = useState<any>(null);
 
     const [data, setData] = useState<any>({
         userName: '',
@@ -40,6 +45,13 @@ const Form:FC<Props> = ({title,
     },[]);
 
     const updateData = (e: any) => {
+        console.log(
+            {
+                ...data,
+                [e.target.name]: e.target.value
+            }
+        )
+
         // setText(e.target.value);
         setData({
             ...data,
@@ -70,11 +82,32 @@ const Form:FC<Props> = ({title,
 
         if (isError || isEmpty) { return;  }
 
+        console.log('FILE: ', file);
+
+        const imageFormData = new FormData();
+        if (file) {
+            //const imageFile = file.imageURL?.[0];
+            const imageFile = file.imageURL?.[0];
+            imageFormData.append('files', file);
+        }
+
         let bodyFormData = new FormData();
 
         Object.keys(data).forEach((key) => {
             bodyFormData.append(key.toString(), data[key].toString());
-        });
+        })
+
+        let fileName;
+
+        try {
+            fileName = await FilesApi.addFile(imageFormData);
+            if (fileName) {
+                bodyFormData.append('file', fileName);
+            }
+            console.log(file);
+        } catch(err) {
+            console.log(err);
+        }
 
         //if (parent) {
            // const parentComment = await getParentComment(parent.id);
@@ -82,40 +115,46 @@ const Form:FC<Props> = ({title,
         //}
 
         try {
-            let comment: CreateCommentDtoWithId;
+            let comment: CommentWithCaptcha;
 
             if (parent?.id) {
-                comment = await CommentApi.addComment({...data, parentId: parent.id, level: (parent.level + 1)});
+                comment = await CommentApi.addComment({...data, file: fileName, rootId: parent.rootId, parentId: parent.id, level: (parent.level + 1)});
 
                 let parentComment = await CommentApi.getOneComment(parent.id.toString());
 
                 let answers: any = [];
 
                 if ((parentComment.answers === null) || (parentComment.answers?.length === 0) ) {
-                    answers = await [comment.id];
+                    answers = [comment.id];
                 } else {
-                    const ans = parentComment.answers;
-                    console.log('ans: ', ans);
-                    let arr = [];
-                    for (let item in ans) {
-                        if (item !== 'length') {
-                            arr.push(item)
-                        }
-                    }
-                    arr.push(comment.id)
+                    const arr = [...parentComment.answers];
+                    // console.log('ans: ', ans);
+                    // let arr = [];
+                    // for (let item in ans) {
+                    //     if (item !== 'length') {
+                    //         arr.push(Number(item));
+                    //     }
+                    // }
+                    arr.push(comment.id);
+                    console.log('arr ans: ', arr);
                     answers = arr;
                 }
 
                 // await CommentApi.updateComment({...parentComment, answers: [99999]}, parent.id)
                 await CommentApi.updateComment({...parentComment, answers: answers}, parent.id)
             } else {
-                comment = await CommentApi.addComment({...data, parentId: null, level: 1});
+                comment = await CommentApi.addComment({...data, file: fileName, parentId: null, level: 1, rootId: null});
+                comment = await CommentApi.updateComment({...data, parentId: null, level: 1, rootId: comment.id}, comment.id);
             }
 
             console.log('Added comment', comment);
 
             //if (parent?.id) {
-                setComments([...comments, comment]);
+                const editedComment: any = {...comment};
+                if (editedComment.captcha)
+                    delete editedComment.captcha;
+
+                setComments();
             //}
            // else {
             //    setComments([comment]);
@@ -140,6 +179,11 @@ const Form:FC<Props> = ({title,
         //     ...data,
         //     text: newText
         // })
+    }
+
+    const changeFileHandler = (e: any) => {
+        // @ts-ignore
+        console.log('File change e: ', e.target.value);
     }
 
     return (
@@ -189,7 +233,6 @@ const Form:FC<Props> = ({title,
 
                 <div className={styles.block}>
 
-
                     <div className={styles.tags}>
                         <button type="button" onClick={(e: MouseEvent<HTMLButtonElement>) => addTagToText(`<i></i>`)}>[ i ]</button>
                         <button type="button" onClick={(e: MouseEvent<HTMLButtonElement>) => addTagToText(`<strong></strong>`)}>[ strong ]</button>
@@ -218,6 +261,13 @@ const Form:FC<Props> = ({title,
                 </div>
 
                 {isEmptyRequiredFields && <div className={`${styles.error} ${styles.big}`}>There are empty required fields!</div>}
+
+
+                <input onClick={changeFileHandler}
+                       type="file"
+                       name="file"
+                       onChange={(e: ChangeEvent<HTMLInputElement> & {target: {files: any}}) => { setFile(e.target.files[0]) }}/>
+
 
                 <Box sx={{marginTop: '30px', textAlign: 'center'}}>
                     <Button

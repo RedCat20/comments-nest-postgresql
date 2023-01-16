@@ -1,19 +1,26 @@
-import {FC, useEffect, useState} from "react";
+import {FC, ReactNode, useEffect, useState} from "react";
 import {Avatar, Box, Button, Typography} from "@mui/material";
 import styles from './Comment.module.scss';
 import DialogAlert from "../DialogAlert/DialogAlert";
 import * as React from "react";
 import Form from "../Form/Form";
-import {CreateCommentDto, CreateCommentDtoWithId} from "../../data/types";
+import {ConvertedCommentDto, CreateCommentDto, CreateCommentDtoWithId} from "../../data/types";
 import {CommentApi} from "../../data/axiosInstance";
 
 interface Props {
-    comment: CreateCommentDtoWithId;
-    comments: CreateCommentDtoWithId[];
-    setComments: (value: CreateCommentDtoWithId[]) => void;
+    //comment: CreateCommentDtoWithId;
+    comment: ConvertedCommentDto;
+    //comments: CreateCommentDtoWithId[];
+    comments: ConvertedCommentDto[];
+    //setComments: (value: CreateCommentDtoWithId[]) => void;
+    setComments: () => void;
+
+    renderComments: any;
+
+    children?: ReactNode;
 }
 
-const Comment:FC<Props> = ({comment,setComments,comments = []}) => {
+const Comment:FC<Props> = ({comment,setComments,comments = [], children = null}) => {
 
     //console.log('comment: ', comment)
 
@@ -55,11 +62,11 @@ const Comment:FC<Props> = ({comment,setComments,comments = []}) => {
                      borderLeft: `${comment.level > 0 ? '2px solid silver' : 'none'}`,
                      paddingLeft: `${comment.level > 0 ? '10px' : '0'}`,
                 }}>
-                <Box className={styles.top}  style={{background: `${comment.parentId === null ? 'bisque' : '#f3f3f3'}`}}>
+                <Box className={styles.top}  style={{background: `${comment.parentId === null ? '#e4eefa' : '#f3f3f3'}`}}>
                     <div className={styles.info}>
                         <Avatar/>
                         <Typography variant="subtitle1" sx={{fontWeight: 'bold'}}>
-                            id: {comment.id} -- {comment.userName} -- parent: {comment.parentId ?? 'no parent'}
+                            id: {comment.id} -- {comment.userName} -- parent: {comment.parentId ?? 'null'}
                         </Typography>
                         <Typography variant="body1">
                             <>{creatDate}</>
@@ -68,8 +75,10 @@ const Comment:FC<Props> = ({comment,setComments,comments = []}) => {
                 </Box>
 
                 <Box className={styles.text}>
-                    <p>{comment.text}</p>
+                    <p dangerouslySetInnerHTML={{__html: comment.text}}></p>
                 </Box>
+
+                <div>File: {comment.file}</div>
 
                 <Box>
                     <Button
@@ -83,7 +92,7 @@ const Comment:FC<Props> = ({comment,setComments,comments = []}) => {
 
                 <Box>
                     {answers?.map((answer: any, idx: number) => {
-                        return <div key={idx}>{answer} parent: {comment.parentId}</div>
+                        return <div key={idx}>parent for: {answer} </div>
                     })}
 
                     {/*{comment?.answers?.map((answer,idx) => {*/}
@@ -91,6 +100,8 @@ const Comment:FC<Props> = ({comment,setComments,comments = []}) => {
                     {/*})}*/}
                 </Box>
             </Box>
+
+            {children}
 
             <DialogAlert open={open} setOpen={setOpen} >
                 <Form title="Add an answer" parent={comment} comments={comments} specialCallback={() => setOpen(false)} setComments={setComments}/>

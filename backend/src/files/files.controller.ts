@@ -35,8 +35,14 @@ export class FilesController {
     uploadFiles(
         @UploadedFiles()
             files: Array<Express.Multer.File>
-    ): void {
+    ): any {
         console.log(files);
+        for (let i in files) {
+            console.log(i);
+        }
+
+        // @ts-ignore
+        return files.files[0].filename;
     }
 
 
