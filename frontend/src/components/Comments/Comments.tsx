@@ -26,19 +26,28 @@ const Comments:FC<Props> = ({comments,setComments,count,isMainOnly,setCurrentPag
     }
 
     const renderComments = (commentsCopy: any = comments) => {
-       return (
-           <>{commentsCopy.map((item: ConvertedCommentDto) => {
-               if (isMainOnly || item.answers?.length === 0) {
-                   return <Comment key={item.id} comment={item} setComments={setComments} renderComments={this}/>
-               } else if (!isMainOnly) {
-                   return ( <Comment key={item.id} comment={item} setComments={setComments} renderComments={this}>
-                       {item.answers.map((ans: any) => {
-                           return <Comment key={ans.id} comment={ans} setComments={setComments} renderComments={this}/>;
-                       })}
-                   </Comment> )
-               }
-           } )}</>
-       )
+        if (comments) {
+            console.log('comments: ', comments)
+            return (
+                <>
+                    {commentsCopy.map((item: ConvertedCommentDto, idx: number) => {
+                        if (isMainOnly || item.answers?.length === 0) {
+                            return <Comment key={`comment_${idx}`} comment={item} setComments={setComments} renderComments={this}/>
+                        } else if (!isMainOnly) {
+                            return ( <Comment key={item.id} comment={item} setComments={setComments} renderComments={this}>
+                                {item.answers?.length > 0 &&
+                                    item.answers.map((ans: any, idx: number) => {
+                                        return <Comment key={`${ans.id}_${idx}`} comment={ans} setComments={setComments} renderComments={this}/>;
+                                    })}
+                            </Comment> )
+                        }
+                    } )}
+                </>
+            )
+        }
+        else {
+            return null
+        }
     }
 
     return (

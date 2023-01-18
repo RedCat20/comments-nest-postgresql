@@ -18,7 +18,9 @@ import { join } from 'path';
             envFilePath: `.${process.env.NODE_ENV}.env`
         }),
         ServeStaticModule.forRoot({
-            rootPath: join(__dirname, '..', 'client'),
+            //rootPath: join(__dirname, '..', 'static'),
+            rootPath: join(__dirname, '..', 'upload'), // added ../ to get one folder back
+            serveRoot: '/upload/' //last slash was important
         }),
         SequelizeModule.forRoot({
             dialect: 'postgres',

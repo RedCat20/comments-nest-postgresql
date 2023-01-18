@@ -9,7 +9,7 @@ import {CreateCommentDtoWithId} from "../types/comment.types";
 import {CommentApi} from "../axios";
 import DialogAlert from "./DialogAlert/DialogAlert";
 import * as React from "react";
-import {createArrayOfMainComments} from "../helpers/create.view.array.of.comments";
+import {createArrayOfMainComments, createViewArrayOfComments} from "../helpers/create.view.array.of.comments";
 
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
@@ -31,8 +31,9 @@ const App:FC = () => {
     }
 
     const getComments = async () => {
+        //const comments = await CommentApi.getAllComments(currentPage);
         const comments = await CommentApi.getAllComments(currentPage);
-        setComments(comments.rows);
+        setComments(createViewArrayOfComments(comments.rows));
         setCount(comments.count);
     }
     useEffect(() => {

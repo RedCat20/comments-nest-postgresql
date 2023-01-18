@@ -1,13 +1,16 @@
 import {CreateCommentDtoWithId} from "../types/comment.types";
 
 export const createArrayOfMainComments = (comments: CreateCommentDtoWithId[]) => {
-    return comments.filter(item => item.parentId === null);
+
+    const filteredComments = comments.filter(item => item.parentId === null);
+    console.log('filteredComments: ', filteredComments);
+
+    return filteredComments;
 }
 
 export const createViewArrayOfComments = (comments: CreateCommentDtoWithId[]) => {
     //const mainNodes: ConvertedCommentDto[] = comments.filter(item => item.parentId === null);
     const mainNodes: any = comments.filter(item => item.parentId === null);
-    console.log('mainNodes: ', mainNodes);
 
     const mainNodesCopy = JSON.parse(JSON.stringify(mainNodes.reverse()));
 
@@ -19,8 +22,7 @@ export const createViewArrayOfComments = (comments: CreateCommentDtoWithId[]) =>
         }
         newArr.push(item);
     });
-
-    console.log('New arr: ', newArr);
+    console.log('newArr: ', newArr);
 
     return newArr;
 }
