@@ -82,6 +82,7 @@ const Form:FC<Props> = ({title,
 
         try {
             fileName = await FilesApi.addFile(imageFormData);
+            console.log('fileName: ', fileName);
             if (fileName) {
                 bodyFormData.append('file', fileName);
             }

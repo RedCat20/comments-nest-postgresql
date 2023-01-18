@@ -7,4 +7,11 @@ export const FilesApi = {
         return data;
     },
 
+    async getFile(filename: string) {
+        // console.log('filename: ', filename)
+        // @ts-ignore
+        const {data} = await instance.get(`http://localhost:5000/upload/${filename}`, filename);
+        return data;
+    },
+
 }

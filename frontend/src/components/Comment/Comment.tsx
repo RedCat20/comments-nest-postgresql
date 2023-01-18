@@ -1,11 +1,12 @@
-import {FC, ReactNode, useEffect, useState} from "react";
+import * as React from "react";
+import {FC, MouseEvent, ReactNode, useEffect, useRef, useState} from "react";
 import {Avatar, Box, Button, Typography} from "@mui/material";
 import styles from './Comment.module.scss';
 import DialogAlert from "../DialogAlert/DialogAlert";
-import * as React from "react";
 import Form from "../Form/Form";
 import {ConvertedCommentDto, CreateCommentDto} from "../../types/comment.types";
-import {CommentApi} from "../../axios";
+import {CommentApi, FilesApi} from "../../axios";
+import Preview from "../Preview/Preview";
 
 interface Props {
     comment: ConvertedCommentDto;
@@ -16,7 +17,46 @@ interface Props {
 
 const Comment:FC<Props> = ({comment,setComments, children = null}) => {
 
+    ///////
+
+    const [file, setFile] = useState(null);
     //console.log('comment: ', comment)
+
+    const [previewUrl, setPreviewUrl] = useState<string>('');
+    const [open, setOpen] = useState(false);
+    const [openDialog, setOpenDialog] = useState(false);
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const onRemoveFileHandler = (e: MouseEvent<HTMLButtonElement | HTMLInputElement>) => {
+        setPreviewUrl('');
+        setFile(null);
+        if (fileInputRef?.current?.value) {
+            fileInputRef.current.value = '';
+        }
+    }
+
+    const onShowPreviewHandler = (e: MouseEvent<HTMLImageElement>) => {
+        setOpen(true);
+    }
+
+    const setFileToPreview = async () => {
+        // setPreviewUrl(URL.createObjectURL(file));
+        const url = `http://localhost:5000/upload/${comment?.file}`;
+        setPreviewUrl(url);
+        let blob = await fetch(url).then(r => r.blob());
+        // console.log('blob: ', blob)
+        // @ts-ignore
+        setFile(blob);
+    }
+
+    useEffect(() => {
+        if (comment.file) {
+            setFileToPreview();
+        }
+    }, [comment?.file]);
+
+    ///////
 
     let creatDate;
 
@@ -25,8 +65,6 @@ const Comment:FC<Props> = ({comment,setComments, children = null}) => {
         creatDate += ' | ';
         creatDate += new Date(  new Date(comment.createdAt).valueOf() ).toLocaleTimeString();
     }
-
-    const [open, setOpen] = useState(false);
 
     const [answers, setAnswers] = useState<number[]>();
 
@@ -46,7 +84,22 @@ const Comment:FC<Props> = ({comment,setComments, children = null}) => {
 
     useEffect(() => {
         getAnswers();
+        getFileFromStore();
     },[]);
+
+    const getFileFromStore = async () => {
+        if (comment.file && comment.file?.length > 0) {
+            try {
+                const file = await FilesApi.getFile(comment.file);
+                //console.log('file', file);
+                setFile(file);
+            }
+            catch(err) {
+                //console.log('no file', err)
+                setFile(null);
+            }
+        }
+    }
 
     return (
         <>
@@ -60,7 +113,8 @@ const Comment:FC<Props> = ({comment,setComments, children = null}) => {
                     <div className={styles.info}>
                         <Avatar/>
                         <Typography variant="subtitle1" sx={{fontWeight: 'bold'}}>
-                            id: {comment.id} -- {comment.userName} -- parent: {comment.parentId ?? 'null'}
+                            {/*id: {comment.id} -- {comment.userName} -- parent: {comment.parentId ?? 'null'}*/}
+                            {comment.userName}
                         </Typography>
                         <Typography variant="body1">
                             <>{creatDate}</>
@@ -68,33 +122,48 @@ const Comment:FC<Props> = ({comment,setComments, children = null}) => {
                     </div>
                 </Box>
 
-                <Box className={styles.text}>
-                    <p dangerouslySetInnerHTML={{__html: comment.text}}></p>
+                <Box className={styles.text} sx={{display: 'flex', justifyContent: 'space-between', gap: '30px'}}>
+                    <div>
+                        <p style={{color: 'gray', borderBottom: '1px dotted gray', paddingBottom: '10px'}}>{comment.email}</p>
+                        <p dangerouslySetInnerHTML={{__html: comment.text}}></p>
+                    </div>
+                    <div style={{marginTop: '30px'}}>{file && <Preview
+                                           isViewMode={true}
+                                           file={file}
+                                           preview={previewUrl}
+                                           onShowPreviewHandler={onShowPreviewHandler}
+                                           onRemoveFileHandler={onRemoveFileHandler}
+                                           open={open}
+                                           setOpen={setOpen}
+                    />}</div>
                 </Box>
 
-                <div>File: {comment.file}</div>
+                {/*<div>File: {comment?.file}</div>*/}
+                {/*<div> { comment?.file && <img className={styles.filePreview} src={`http://localhost:5000/upload/${comment.file}`} alt={comment.file}/> }  </div>*/}
+
+
 
                 <Box sx={{marginTop: '20px'}}>
                     <Button
                         sx={{width: '200px'}}
-                        onClick={() => setOpen(true)}
-                        variant="text"
+                        onClick={() => setOpenDialog(true)}
+                        variant="outlined"
                         color="primary">
                         Create answer
                     </Button>
                 </Box>
 
-                <Box>
-                    {answers?.map((answer: any, idx: number) => {
-                        return <div key={idx}>parent for: {answer} </div>
-                    })}
-                </Box>
+                {/*<Box>*/}
+                {/*    {answers?.map((answer: any, idx: number) => {*/}
+                {/*        return <div key={idx}>parent for: {answer} </div>*/}
+                {/*    })}*/}
+                {/*</Box>*/}
             </Box>
 
             {children}
 
-            <DialogAlert open={open} setOpen={setOpen} >
-                <Form title="Add an answer" parent={comment} specialCallback={() => setOpen(false)} setComments={setComments}/>
+            <DialogAlert open={openDialog} setOpen={setOpenDialog} >
+                <Form title="Add an answer" parent={comment} specialCallback={() => setOpenDialog(false)} setComments={setComments}/>
             </DialogAlert>
         </>
     );

@@ -1,10 +1,10 @@
 import {
     //BadRequestException,
     //Body,
-    Controller,
+    Controller, Get, Param,
     //Param,
     //ParseIntPipe,
-    Post, Req,
+    Post, Req, Res,
     //UploadedFile,
     UploadedFiles,
     UseInterceptors
@@ -13,19 +13,42 @@ import {FileFieldsInterceptor, FileInterceptor} from "@nestjs/platform-express";
 //import path from "path";
 import {editFileName, imageFileFilter} from "./interceptors";
 import {diskStorage} from "multer";
+import path, {join} from "path";
+import {uuid} from "uuidv4";
 
 // const allowedFileExtensions = ['.jpg', '.png'];
 // enum FileValidationErrors {
 //     UNSUPPORTED_FILE_TYPE
 // }
 
+
+export const storage = {storage: diskStorage({
+    destination: './upload',
+    filename: (req, file, cb) => {
+        const filename: string = path.parse(file.originalname).name.replace(/\s/g, '') + uuid();
+        const extension: string = path.parse(file.originalname).ext;
+
+        cb(null, `${filename}${extension}`)
+    }
+})};
+
 @Controller('files')
 export class FilesController {
+
+    @Get('/:filename')
+    download(@Param('filename') filename, @Res() res) {
+        console.log('filename', filename);
+        const fieldName = `${filename}`;
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.attachment(fieldName);
+        return res.sendFile( join(__dirname, '../../files/', fieldName));
+    }
+
     @Post("files")
     @UseInterceptors(
         FileFieldsInterceptor([{ name: "files", maxCount: 4 }], {
             storage: diskStorage({
-                destination: "./files",
+                destination: "./upload",
                 filename: editFileName,
             }),
             fileFilter: imageFileFilter,
