@@ -1,4 +1,4 @@
-import {ChangeEvent, FC, MouseEvent, useEffect, useState} from 'react';
+import {ChangeEvent, FC, MouseEvent, useCallback, useEffect, useState} from 'react';
 import styles from './App.module.scss';
 import {Container, ThemeProvider} from "@mui/material";
 import {theme} from "../assets/theme";
@@ -16,6 +16,7 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
+import MainComments from "./MainComments/MainComments";
 
 const App:FC = () => {
     const [open, setOpen] = useState(false);
@@ -23,6 +24,25 @@ const App:FC = () => {
     const [count, setCount] = useState<number>(0);
     const [radioValue, setRadioValue] = useState('all')
     const [currentPage, setCurrentPage] = useState<number>(1);
+    const [sort, setSort] = useState<string>('createdAt_desc');
+
+    const onAddCommentHandler = (e: MouseEvent<HTMLButtonElement>) => {
+        setOpen(true)
+    }
+
+    const getMainComments = useCallback(async (sortParam: string) => {
+        console.log('sortParam: ', sortParam);
+        const comments = await CommentApi.getMainComments(currentPage, sort );
+        const mainComments = createArrayOfMainComments(comments.rows);
+        setComments(mainComments);
+        setCount(comments.count);
+    },[sort]);
+
+    const getComments = async () => {
+        const comments = await CommentApi.getAllComments(currentPage);
+        setComments(createViewArrayOfComments(comments.rows));
+        setCount(comments.count);
+    }
 
     const setAllComments = async () => {
         const comments = await CommentApi.getAllComments(currentPage);
@@ -30,29 +50,27 @@ const App:FC = () => {
         setCount(comments.count);
     }
 
-    const getComments = async () => {
-        //const comments = await CommentApi.getAllComments(currentPage);
-        const comments = await CommentApi.getAllComments(currentPage);
-        setComments(createViewArrayOfComments(comments.rows));
-        setCount(comments.count);
-    }
     useEffect(() => {
         getComments();
     },[currentPage]);
 
-    const onAddCommentHandler = (e: MouseEvent<HTMLButtonElement>) => {
-        setOpen(true)
-    }
-
-    const handleRadioChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleRadioChange = async (e: ChangeEvent<HTMLInputElement>) => {
         setRadioValue(e.target.value);
         if (e.target.value === 'main') {
-            const mainComments = createArrayOfMainComments(comments);
+            const comments = await CommentApi.getMainComments(currentPage, sort);
+            const mainComments = createArrayOfMainComments(comments.rows);
             setComments(mainComments);
         } else {
             getComments();
         }
     }
+
+
+    useEffect(() => {
+        if (radioValue === 'main') {
+            getMainComments(sort).then(r => r);
+        }
+    },[getMainComments, radioValue, sort]);
 
     return (
       <ThemeProvider  theme={theme}>
@@ -78,7 +96,27 @@ const App:FC = () => {
                     </FormControl>
                 </div>
 
-                <Comments isMainOnly={radioValue === 'main'} comments={comments} count={count} setComments={setAllComments} setCurrentPage={setCurrentPage}/>
+                {radioValue === 'main' &&
+                  <MainComments sort={sort}
+                                setSort={setSort}
+                                isMainOnly={true}
+                                comments={comments}
+                                count={count}
+                                currentPage={currentPage}
+                                setComments={setAllComments}
+                                setCurrentPage={setCurrentPage}
+                  />
+                }
+
+                {radioValue !== 'main' &&
+                  <Comments isMainOnly={false}
+                            comments={comments}
+                            count={count}
+                            currentPage={currentPage}
+                            setComments={setAllComments}
+                            setCurrentPage={setCurrentPage}
+                  />
+                }
             </div>
 
           </Container>

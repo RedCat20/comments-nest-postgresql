@@ -43,6 +43,31 @@ export class CommentsService {
         return comments;
     }
 
+    async getMainComments(page, sort) {
+        let limit = 25
+        let offset = 0 + (page - 1) * limit;
+        const sortParams = sort.split('_');
+        console.log('sortParams: ', sortParams);
+        sortParams[1] = sortParams[1].toUpperCase()
+
+        const comments = await this.commentRepository.findAndCountAll(
+            {
+                where: { parentId: null },
+                include: {all: true},
+                order: [
+                    // ['createdAt', 'DESC'],
+                    [sortParams[0], sortParams[1]],
+
+
+                    // ['userName', 'ASC'],
+                ],
+                offset: offset,
+                limit: 25
+            }
+        );
+        return comments;
+    }
+
     async getOneComment(id: string) {
         return await this.commentRepository.findOne({ where: { id: id } });
     }

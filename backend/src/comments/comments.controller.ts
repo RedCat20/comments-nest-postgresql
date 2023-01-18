@@ -7,9 +7,9 @@ import {
     Post, Req,
     Res,
 } from '@nestjs/common';
-import {CommentsService} from "./comments.service";
-import {CreateCommentDto} from "./dto/create.comment.dto";
-import {diskStorage} from "multer";
+import { CommentsService } from "./comments.service";
+import { CreateCommentDto } from "./dto/create.comment.dto";
+import { diskStorage } from "multer";
 import path from "path";
 const { uuid } = require('uuidv4');
 
@@ -28,14 +28,14 @@ export class CommentsController {
 
     constructor(private commentsService: CommentsService) { }
 
-    @Get('download')
-    download(@Res() res) {
-        const fieldName = 'adaptives.rar'; /// тепер скачується норм файл з норм назвою, але тестити треба в браузері
-        res.setHeader('Content-Type', 'application/octet-stream');
-        res.attachment(fieldName);
-
-        return res.sendFile("d:\\" + fieldName)
-    }
+    // @Get('download')
+    // download(@Res() res) {
+    //     const fieldName = 'adaptives.rar'; /// тепер скачується норм файл з норм назвою, але тестити треба в браузері
+    //     res.setHeader('Content-Type', 'application/octet-stream');
+    //     res.attachment(fieldName);
+    //
+    //     return res.sendFile("d:\\" + fieldName)
+    // }
 
     @Patch('/:id')
     update(@Body() commentDto: CreateCommentDto, @Param('id') id: number) {
@@ -51,7 +51,17 @@ export class CommentsController {
     getAll(@Req() request: Request & {params: any, query: any}) {
         const page = request.query.page;
         const comments = this.commentsService.getAllComments(page);
-        console.log('comments: ', comments)
+        // console.log('comments: ', comments)
+        return comments;
+    }
+
+    @Get('/all')
+    getMain(@Req() request: Request & {params: any, query: any}) {
+        const page = request.query.page;
+        const sort = request.query.sort;
+        console.log('controller sort: ', request.query);
+        const comments = this.commentsService.getMainComments(page, sort);
+        // console.log('comments: ', comments)
         return comments;
     }
 

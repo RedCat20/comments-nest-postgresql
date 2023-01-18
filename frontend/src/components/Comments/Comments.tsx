@@ -12,9 +12,10 @@ interface Props {
     count: number;
     isMainOnly: boolean;
     setCurrentPage: (value: number) => void;
+    currentPage: number;
 }
 
-const Comments:FC<Props> = ({comments,setComments,count,isMainOnly,setCurrentPage}) => {
+const Comments:FC<Props> = ({comments,setComments,count,isMainOnly,setCurrentPage, currentPage}) => {
     const [pages, setPages] = useState(0);
 
     useEffect(() => {
@@ -23,6 +24,10 @@ const Comments:FC<Props> = ({comments,setComments,count,isMainOnly,setCurrentPag
 
     const onClickPageHandler = (page: number) => {
         setCurrentPage(page);
+    }
+
+    const onChangePageHandler = (e: MouseEvent<HTMLButtonElement>, idx: number) => {
+        onClickPageHandler(idx + 1);
     }
 
     const renderComments = (commentsCopy: any = comments) => {
@@ -52,11 +57,21 @@ const Comments:FC<Props> = ({comments,setComments,count,isMainOnly,setCurrentPag
 
     return (
         <>
-            {comments?.length === 0 && <div className={styles.noComments}>No comments, please add smth</div>}
+            {comments?.length === 0 &&
+              <div className={styles.noComments}>No comments, please add smth</div>
+            }
+
             {renderComments()}
+
             <div className={styles.pages}>
                 {new Array(pages).fill(undefined).map((item, idx) => {
-                    return <Button variant="contained" color="secondary" key={idx} onClick={(e: MouseEvent<HTMLButtonElement>) => onClickPageHandler(idx + 1)}>{idx + 1}</Button>
+                    return <Button key={idx}
+                                   variant="contained"
+                                   color={(currentPage - 1 === idx) ? 'warning' : 'secondary'}
+                                   onClick={(e: MouseEvent<HTMLButtonElement>) => onChangePageHandler(e, idx)}
+                    >
+                        {idx + 1}
+                    </Button>
                 })}
             </div>
         </>

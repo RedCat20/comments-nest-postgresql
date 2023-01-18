@@ -1,14 +1,18 @@
-import {Module} from "@nestjs/common";
-import {AppController} from "./app.controller";
-import {AppService} from "./app.service";
-import {SequelizeModule} from "@nestjs/sequelize";
+import { Module } from "@nestjs/common";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+
+import { SequelizeModule } from "@nestjs/sequelize";
+import { ConfigModule } from "@nestjs/config";
+
 import { CommentsModule } from './comments/comments.module';
-import {ConfigModule} from "@nestjs/config";
-import {Comment} from "./comments/comment.model";
+import { Comment } from "./comments/comment.model";
+
 import { FilesModule } from './files/files.module';
 
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+
 
 @Module({
     controllers: [ AppController ],
@@ -18,9 +22,8 @@ import { join } from 'path';
             envFilePath: `.${process.env.NODE_ENV}.env`
         }),
         ServeStaticModule.forRoot({
-            //rootPath: join(__dirname, '..', 'static'),
-            rootPath: join(__dirname, '..', 'upload'), // added ../ to get one folder back
-            serveRoot: '/upload/' //last slash was important
+            rootPath: join(__dirname, '..', 'upload'),
+            serveRoot: '/upload/'
         }),
         SequelizeModule.forRoot({
             dialect: 'postgres',
