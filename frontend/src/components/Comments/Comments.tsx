@@ -1,9 +1,8 @@
 import {FC, useEffect, useState, MouseEvent} from "react";
 import Comment from '../Comment/Comment';
-import {ConvertedCommentDto, CreateCommentDto, CreateCommentDtoWithId} from "../../types/comment.types";
+import {ConvertedCommentDto, CreateCommentDtoWithId} from "../../types/comment.types";
 
 import styles from './Comments.module.scss';
-import {createViewArrayOfComments} from "../../helpers/create.view.array.of.comments";
 import {Button} from "@mui/material";
 
 interface Props {
@@ -12,9 +11,10 @@ interface Props {
     count: number;
     isMainOnly: boolean;
     setCurrentPage: (value: number) => void;
+    currentPage: number;
 }
 
-const Comments:FC<Props> = ({comments,setComments,count,isMainOnly,setCurrentPage}) => {
+const Comments:FC<Props> = ({comments,setComments,count,isMainOnly,setCurrentPage, currentPage}) => {
     const [pages, setPages] = useState(0);
 
     useEffect(() => {
@@ -25,23 +25,50 @@ const Comments:FC<Props> = ({comments,setComments,count,isMainOnly,setCurrentPag
         setCurrentPage(page);
     }
 
+    const onChangePageHandler = (e: MouseEvent<HTMLButtonElement>, idx: number) => {
+        onClickPageHandler(idx + 1);
+    }
+
     const renderComments = (commentsCopy: any = comments) => {
         if (comments) {
-            console.log('comments: ', comments)
             return (
                 <>
                     {commentsCopy.map((item: ConvertedCommentDto, idx: number) => {
                         if (isMainOnly || item.answers?.length === 0) {
-                            return <Comment key={`comment_${idx}`} comment={item} setComments={setComments} renderComments={this}/>
+                            return <Comment key={`comment_${idx}`} comment={item} setComments={setComments}
+                                            renderComments={this}/>
                         } else if (!isMainOnly) {
-                            return ( <Comment key={item.id} comment={item} setComments={setComments} renderComments={this}>
-                                {item.answers?.length > 0 &&
-                                    item.answers.map((ans: any, idx: number) => {
-                                        return <Comment key={`${ans.id}_${idx}`} comment={ans} setComments={setComments} renderComments={this}/>;
-                                    })}
-                            </Comment> )
+                            return (
+                                <Comment key={item.id} comment={item} setComments={setComments} renderComments={this}>
+                                    {item.answers?.length > 0 &&
+                                      <> {item.answers.map((ans: any, idx: number) => {
+                                          return (
+                                              <Comment key={`${ans.id}_${idx}`} comment={ans}
+                                                       setComments={setComments} renderComments={this}>
+
+                                                  {ans.answers?.length > 0 &&
+                                                    <> {ans.answers.map((answer: any, idx: number) => {
+                                                        return (
+                                                            <Comment key={`${answer.id}_${idx}`} comment={answer}
+                                                                     setComments={setComments}
+                                                                     renderComments={this}>
+                                                            </Comment>
+                                                        )
+                                                    })
+                                                    }
+                                                    </>
+                                                  }
+
+                                              </Comment>
+                                          )
+                                      })
+                                      }
+                                      </>
+                                    }
+                                </Comment>)
                         }
-                    } )}
+                    })
+                    }
                 </>
             )
         }
@@ -52,11 +79,21 @@ const Comments:FC<Props> = ({comments,setComments,count,isMainOnly,setCurrentPag
 
     return (
         <>
-            {comments?.length === 0 && <div className={styles.noComments}>No comments, please add smth</div>}
+            {comments?.length === 0 &&
+              <div className={styles.noComments}>No comments, please add smth</div>
+            }
+
             {renderComments()}
+
             <div className={styles.pages}>
                 {new Array(pages).fill(undefined).map((item, idx) => {
-                    return <Button variant="contained" color="secondary" key={idx} onClick={(e: MouseEvent<HTMLButtonElement>) => onClickPageHandler(idx + 1)}>{idx + 1}</Button>
+                    return <Button key={idx}
+                                   variant="contained"
+                                   color={(currentPage - 1 === idx) ? 'warning' : 'secondary'}
+                                   onClick={(e: MouseEvent<HTMLButtonElement>) => onChangePageHandler(e, idx)}
+                    >
+                        {idx + 1}
+                    </Button>
                 })}
             </div>
         </>

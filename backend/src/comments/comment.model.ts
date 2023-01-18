@@ -15,7 +15,6 @@ interface CommentCreationAttrs {
 }
 
 @Table({tableName: 'comments'})
-//@Table // with default name
 export class Comment extends Model<Comment, CommentCreationAttrs> {
 
     @Column({type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true})

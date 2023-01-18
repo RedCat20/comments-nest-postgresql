@@ -1,8 +1,18 @@
-import {Injectable} from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+
 
 @Injectable()
 export class AppService {
-    getUsers() {
-        return [ {id: 1, name: 'Alex', age: 25} ]
+
+    getTestUsers() {
+        return (
+            JSON.parse(
+                JSON.stringify([
+                    {id: 1, name: 'Alex', age: 25},
+                    {id: 2, name: 'Mary', age: 30},
+                    {id: 3, name: 'John', age: 20},
+                ]
+            ))
+        );
     }
 }

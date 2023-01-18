@@ -1,10 +1,15 @@
-import {CreateCommentDto} from "../types/comment.types";
-import {instance} from "./index";
+import { CreateCommentDto } from "../types/comment.types";
+import { instance } from "./index";
 
 export const CommentApi = {
 
     async getAllComments(currentPage: number) {
         const {data} = await instance.get(`http://localhost:5000/comments?page=${currentPage || 1}`);
+        return data;
+    },
+
+    async getMainComments(currentPage: number, sort: string) {
+        const {data} = await instance.get(`http://localhost:5000/comments/all?page=${currentPage || 1}&sort=${sort}`);
         return data;
     },
 

@@ -1,18 +1,18 @@
-import {NestFactory} from "@nestjs/core";
-import {AppModule} from "./app.module";
-import {join} from "path";
-import {NestExpressApplication} from "@nestjs/platform-express";
-// import {ValidationPipe} from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { NestExpressApplication } from "@nestjs/platform-express";
+import { ValidationPipe } from "@nestjs/common";
+import { join } from "path";
 
-async function start() {
+
+async function bootstrap() {
     const PORT = process.env.PORT || 5000;
 
-    //const app = await NestFactory.create(AppModule, {bodyParser: false});
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
     app.enableCors();
-    // app.useStaticAssets(join(__dirname, '..', 'public'), {
-    //     prefix: '/public',
-    // });
+
+    // app.setGlobalPrefix('api');
 
     // app.useGlobalPipes(new ValidationPipe({
     //     transform: true
@@ -25,4 +25,4 @@ async function start() {
     })
 }
 
-start().then(() => console.log('Start nest app'));
+bootstrap().then(() => console.log('Bootstrap nest app'));
