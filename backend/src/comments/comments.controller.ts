@@ -49,19 +49,50 @@ export class CommentsController {
 
     @Get()
     getAll(@Req() request: Request & {params: any, query: any}) {
-        const page = request.query.page;
-        const comments = this.commentsService.getAllComments(page);
+        //const page = request.query.page;
+        //const comments = this.commentsService.getAllComments(page);
+        const comments = this.commentsService.getAllComments();
         // console.log('comments: ', comments)
+
+        // @ts-ignore
+        //const commentsWithCategories = this.commentsService.getSubCategoriesRecursive(comments.rows);
+        //console.log('commentsWithCategories: ', commentsWithCategories)
+
         return comments;
     }
+
+
+    @Get('/:id/answers')
+    getAnswers(@Param('id') id) {
+        const comments = this.commentsService.getAllComments();
+        const comment = this.commentsService.getOneComment(id).then(res => console.log('res: ', res));
+        console.log('comment: ', comment)
+        const parsed = this.commentsService.jsonParse(comment);
+        // @ts-ignore
+        return parsed;
+
+        //if (comment?.answers?.length === 0) {
+        //}
+        // @ts-ignore
+        // else if (comment?.answers?.length > 0) {
+        //     // @ts-ignore
+        //     comment.answers.map((item, idx, arr) => {
+        //         console.log('return')
+        //         // @ts-ignore
+        //         return comments.filter(comm => comm.id === item)[0];
+        //     })
+        // }
+    }
+
 
     @Get('/all')
     getMain(@Req() request: Request & {params: any, query: any}) {
         const page = request.query.page;
         const sort = request.query.sort;
         console.log('controller sort: ', request.query);
+
         const comments = this.commentsService.getMainComments(page, sort);
-        // console.log('comments: ', comments)
+        console.log('comments: ', comments)
         return comments;
     }
 

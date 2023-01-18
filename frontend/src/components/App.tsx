@@ -41,6 +41,7 @@ const App:FC = () => {
     const getComments = async () => {
         const comments = await CommentApi.getAllComments(currentPage);
         setComments(createViewArrayOfComments(comments.rows));
+        // setComments(createViewArrayOfComments(comments.rows));
         setCount(comments.count);
     }
 
