@@ -1,10 +1,8 @@
-import {FC, useEffect, useState, MouseEvent} from "react";
-import Comment from '../Comment/Comment';
-import {ConvertedCommentDto, CreateCommentDtoWithId} from "../../types/comment.types";
-
+import { FC, useEffect, useState, MouseEvent } from "react";
+import { ConvertedCommentDto, CreateCommentDtoWithId } from "../../../types/comment.types";
 import styles from './MainComments.module.scss';
 import {Box, Button} from "@mui/material";
-
+import Comment from '../CommentItem/Comment';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -12,7 +10,6 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 interface Props {
     comments: CreateCommentDtoWithId[];
-    setComments: () => void;
     count: number;
     isMainOnly: boolean;
     currentPage: number;
@@ -23,7 +20,6 @@ interface Props {
 }
 
 const MainComments:FC<Props> = ({   comments,
-                                    setComments,
                                     count,
                                     isMainOnly,
                                     currentPage,
@@ -51,12 +47,12 @@ const MainComments:FC<Props> = ({   comments,
                 <>
                     {commentsCopy.map((item: ConvertedCommentDto, idx: number) => {
                         if (isMainOnly || item.answers?.length === 0) {
-                            return <Comment key={`comment_${idx}`} comment={item} setComments={setComments} renderComments={this}/>
+                            return <Comment key={`comment_${idx}`} comment={item} renderComments={this}/>
                         } else {
-                            return ( <Comment key={item.id} comment={item} setComments={setComments} renderComments={this}>
+                            return ( <Comment key={item.id} comment={item}renderComments={this}>
                                 {item.answers?.length > 0 &&
                                     item.answers.map((ans: any, idx: number) => {
-                                        return <Comment key={`${ans.id}_${idx}`} comment={ans} setComments={setComments} renderComments={this}/>;
+                                        return <Comment key={`${ans.id}_${idx}`} comment={ans} renderComments={this}/>;
                                     })}
                             </Comment> )
                         }

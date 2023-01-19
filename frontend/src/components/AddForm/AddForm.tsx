@@ -1,6 +1,6 @@
 import {FC, FormEvent, useState} from 'react';
 import {Box, Button, FormControl, FormHelperText, Paper, TextField, Typography} from "@mui/material";
-import styles from "./Form.module.scss";
+import styles from "./AddForm.module.scss";
 import {validateForm} from '../../helpers/validate.form';
 import {CommentApi, FilesApi} from "../../axios";
 import {CommentWithCaptcha, ConvertedCommentDto} from "../../types/comment.types";
@@ -15,17 +15,19 @@ interface Props {
     title?: string;
     title2?: string;
     setIsShow?: (value: boolean) => void;
-    setComments: () => void;
     specialCallback?: any;
     parent?: ConvertedCommentDto | null;
+    sendComment: any;
+    comments: any;
 }
 
-const Form:FC<Props> = ({title,
+const AddForm:FC<Props> = ({title,
                             setIsShow,
-                            setComments,
                             specialCallback,
                             parent,
-                            title2= 'Preview'
+                            title2= 'Preview',
+                            sendComment,
+                            comments
 }) => {
     const [file, setFile] = useState<File | null>(null);
 
@@ -96,6 +98,7 @@ const Form:FC<Props> = ({title,
 
             if (parent?.id) {
                 comment = await CommentApi.addComment({...data, answers: [], file: fileName, rootId: parent.rootId, parentId: parent.id, level: (parent.level + 1)});
+                sendComment(comment);
 
                 let parentComment = await CommentApi.getOneComment(parent.id.toString());
 
@@ -109,17 +112,20 @@ const Form:FC<Props> = ({title,
                     answers = arr;
                 }
 
-                await CommentApi.updateComment({...parentComment, answers: answers}, parent.id)
+                await CommentApi.updateComment({...parentComment, answers: answers}, parent.id);
+
             } else {
                 comment = await CommentApi.addComment({...data, answers: [], file: fileName, parentId: null, level: 1, rootId: null});
-                comment = await CommentApi.updateComment({...data, answers: comment.answers, parentId: null, level: 1, rootId: comment.id}, comment.id);
+                sendComment(comment);
+
+                await CommentApi.updateComment({...data, answers: comment.answers, parentId: null, level: 1, rootId: comment.id}, comment.id);
+
             }
 
             const editedComment: any = {...comment};
+
             if (editedComment.captcha)
                 delete editedComment.captcha;
-
-            setComments();
 
         } catch(err) {
             console.log(err);
@@ -215,4 +221,4 @@ const Form:FC<Props> = ({title,
     );
 };
 
-export default Form;
+export default AddForm;

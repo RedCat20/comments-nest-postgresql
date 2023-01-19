@@ -1,9 +1,9 @@
-import React from 'react';
+import React, {ChangeEvent} from 'react';
 import { render, screen } from '@testing-library/react';
-import App from './App';
+import Switcher from './Switcher/Switcher';
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
+test('Type of comments', () => {
+  render(<Switcher radioValue={'main'} handleRadioChange={(e: ChangeEvent<HTMLInputElement>) => {console.log('switch')}}/>);
+  const linkElement = screen.getByText(/Type of comments/i);
   expect(linkElement).toBeInTheDocument();
 });
