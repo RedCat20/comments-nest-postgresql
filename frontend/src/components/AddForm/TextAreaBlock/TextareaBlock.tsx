@@ -1,5 +1,5 @@
 import React, {ChangeEvent, FC, MouseEvent, useState} from 'react';
-import styles from "../Form.module.scss";
+import styles from "../AddForm.module.scss";
 import {FormControl, FormHelperText, TextField} from "@mui/material";
 
 interface Props {

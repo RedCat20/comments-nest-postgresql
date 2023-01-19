@@ -1,26 +1,27 @@
 import * as React from "react";
 import {FC, MouseEvent, ReactNode, useEffect, useRef, useState} from "react";
 import {Avatar, Box, Button, Typography} from "@mui/material";
-import styles from './Comment.module.scss';
-import DialogAlert from "../DialogAlert/DialogAlert";
-import Form from "../Form/Form";
-import {ConvertedCommentDto, CreateCommentDto} from "../../types/comment.types";
-import {CommentApi, FilesApi} from "../../axios";
-import Preview from "../Preview/Preview";
+import styles from './CommentItem.module.scss';
+import DialogAlert from "../../DialogAlert/DialogAlert";
+import AddForm from "../../AddForm/AddForm";
+import { ConvertedCommentDto } from "../../../types/comment.types";
+import { FilesApi } from "../../../axios";
+import Preview from "../../Preview/Preview";
 
 interface Props {
     comment: ConvertedCommentDto;
-    setComments: () => void;
     renderComments: any;
     children?: ReactNode;
+    sendComment?: any;
+    comments?: any;
 }
 
-const Comment:FC<Props> = ({comment,setComments, children = null}) => {
-
-    ///////
+const CommentItem:FC<Props> = ({comment,
+                                   children = null,
+                                   sendComment,
+                                   comments}) => {
 
     const [file, setFile] = useState(null);
-    //console.log('comment: ', comment)
 
     const [previewUrl, setPreviewUrl] = useState<string>('');
     const [open, setOpen] = useState(false);
@@ -41,11 +42,9 @@ const Comment:FC<Props> = ({comment,setComments, children = null}) => {
     }
 
     const setFileToPreview = async () => {
-        // setPreviewUrl(URL.createObjectURL(file));
         const url = `http://localhost:5000/upload/${comment?.file}`;
         setPreviewUrl(url);
         let blob = await fetch(url).then(r => r.blob());
-        // console.log('blob: ', blob)
         // @ts-ignore
         setFile(blob);
     }
@@ -56,8 +55,6 @@ const Comment:FC<Props> = ({comment,setComments, children = null}) => {
         }
     }, [comment?.file]);
 
-    ///////
-
     let creatDate;
 
     if (comment.createdAt) {
@@ -66,24 +63,7 @@ const Comment:FC<Props> = ({comment,setComments, children = null}) => {
         creatDate += new Date(  new Date(comment.createdAt).valueOf() ).toLocaleTimeString();
     }
 
-    const [answers, setAnswers] = useState<number[]>();
-
-    const getAnswers = async () => {
-        try {
-            if (comment.id) {
-                const commentObj: CreateCommentDto = await CommentApi.getOneComment(comment.id.toString());
-                const answers = commentObj?.answers;
-                if (answers?.length) {
-                    setAnswers(commentObj.answers)
-                }
-            }
-        } catch(err) {
-            console.log(err);
-        } finally {  }
-    }
-
     useEffect(() => {
-        getAnswers();
         getFileFromStore();
     },[]);
 
@@ -91,11 +71,9 @@ const Comment:FC<Props> = ({comment,setComments, children = null}) => {
         if (comment.file && comment.file?.length > 0) {
             try {
                 const file = await FilesApi.getFile(comment.file);
-                //console.log('file', file);
                 setFile(file);
             }
             catch(err) {
-                //console.log('no file', err)
                 setFile(null);
             }
         }
@@ -138,11 +116,6 @@ const Comment:FC<Props> = ({comment,setComments, children = null}) => {
                     />}</div>
                 </Box>
 
-                {/*<div>File: {comment?.file}</div>*/}
-                {/*<div> { comment?.file && <img className={styles.filePreview} src={`http://localhost:5000/upload/${comment.file}`} alt={comment.file}/> }  </div>*/}
-
-
-
                 <Box sx={{marginTop: '20px'}}>
                     <Button
                         sx={{width: '200px'}}
@@ -152,21 +125,15 @@ const Comment:FC<Props> = ({comment,setComments, children = null}) => {
                         Create answer
                     </Button>
                 </Box>
-
-                {/*<Box>*/}
-                {/*    {answers?.map((answer: any, idx: number) => {*/}
-                {/*        return <div key={idx}>parent for: {answer} </div>*/}
-                {/*    })}*/}
-                {/*</Box>*/}
             </Box>
 
             {children}
 
             <DialogAlert open={openDialog} setOpen={setOpenDialog} >
-                <Form title="Add an answer" parent={comment} specialCallback={() => setOpenDialog(false)} setComments={setComments}/>
+                <AddForm comments={comments} sendComment={sendComment} title="Add an answer" parent={comment} specialCallback={() => setOpenDialog(false)}/>
             </DialogAlert>
         </>
     );
 };
 
-export default Comment;
+export default CommentItem;
