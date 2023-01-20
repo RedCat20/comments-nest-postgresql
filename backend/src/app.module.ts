@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { AppGateway } from './app.gateway';
+import { TestGateway } from "./test.gateway";
 
 import { SequelizeModule } from "@nestjs/sequelize";
 import { ConfigModule } from "@nestjs/config";
@@ -15,7 +16,7 @@ import { join } from 'path';
 
 @Module({
     controllers: [ ],
-    providers: [ AppGateway ],
+    providers: [ AppGateway, TestGateway ],
     imports: [
         ConfigModule.forRoot({
             envFilePath: `.${process.env.NODE_ENV}.env`

@@ -26,6 +26,12 @@ export const CommentApi = {
     async getOneComment(id: string) {
         const {data} = await instance.get(`http://localhost:5000/comments/${id}`);
         return data;
+    },
+
+    async getCommentAnswers(id: string) {
+        // const {data} = await instance.get(`http://localhost:5000/comments/${id}/answers`);
+        const {data} = await instance.get(`http://localhost:5000/comments/${id}/recursive-answers`);
+        return data;
     }
 
 };

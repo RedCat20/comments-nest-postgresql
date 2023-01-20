@@ -4,7 +4,8 @@ import {
     Get,
     Param,
     Patch,
-    Post, Req,
+    Post,
+    Req,
     Res,
 } from '@nestjs/common';
 import { CommentsService } from "./comments.service";
@@ -37,14 +38,14 @@ export class CommentsController {
     //     return res.sendFile("d:\\" + fieldName)
     // }
 
-    @Patch('/:id')
-    update(@Body() commentDto: CreateCommentDto, @Param('id') id: number) {
-        return this.commentsService.updateComment(commentDto, id)
-    }
-
     @Post()
     create(@Body() commentDto: CreateCommentDto) {
         return this.commentsService.createComment(commentDto)
+    }
+
+    @Patch('/:id')
+    update(@Body() commentDto: CreateCommentDto, @Param('id') id: number) {
+        return this.commentsService.updateComment(commentDto, id)
     }
 
     @Get()
@@ -61,36 +62,11 @@ export class CommentsController {
         return comments;
     }
 
-
-    @Get('/:id/answers')
-    getAnswers(@Param('id') id) {
-        const comments = this.commentsService.getAllComments();
-        const comment = this.commentsService.getOneComment(id).then(res => console.log('res: ', res));
-        console.log('comment: ', comment)
-        const parsed = this.commentsService.jsonParse(comment);
-        // @ts-ignore
-        return parsed;
-
-        //if (comment?.answers?.length === 0) {
-        //}
-        // @ts-ignore
-        // else if (comment?.answers?.length > 0) {
-        //     // @ts-ignore
-        //     comment.answers.map((item, idx, arr) => {
-        //         console.log('return')
-        //         // @ts-ignore
-        //         return comments.filter(comm => comm.id === item)[0];
-        //     })
-        // }
-    }
-
-
     @Get('/all')
     getMain(@Req() request: Request & {params: any, query: any}) {
         const page = request.query.page;
         const sort = request.query.sort;
         console.log('controller sort: ', request.query);
-
         const comments = this.commentsService.getMainComments(page, sort);
         console.log('comments: ', comments)
         return comments;
@@ -98,7 +74,20 @@ export class CommentsController {
 
     @Get('/:id')
     getOne(@Param('id') id) {
-        return this.commentsService.getOneComment(id)
+        const comment = this.commentsService.getOneComment(id);
+        return comment;
+    }
+
+    @Get('/:id/answers')
+    getAnswers(@Param('id') id) {
+        const answers = this.commentsService.getCommentAnswers(id);
+        return answers;
+    }
+
+    @Get('/:id/recursive-answers')
+    getRecursiveAnswers(@Param('id') id) {
+        const answers = this.commentsService.getAnswersRecursive(id);
+        return answers;
     }
 
 }

@@ -17,7 +17,7 @@ interface Props {
     setIsShow?: (value: boolean) => void;
     specialCallback?: any;
     parent?: ConvertedCommentDto | null;
-    sendComment: any;
+    sendComment: (value: any) => void;
     comments: any;
 }
 
@@ -96,9 +96,10 @@ const AddForm:FC<Props> = ({title,
         try {
             let comment: CommentWithCaptcha;
 
+            console.log('All comments from add form: ', comments);
+
             if (parent?.id) {
                 comment = await CommentApi.addComment({...data, answers: [], file: fileName, rootId: parent.rootId, parentId: parent.id, level: (parent.level + 1)});
-                sendComment(comment);
 
                 let parentComment = await CommentApi.getOneComment(parent.id.toString());
 
@@ -112,14 +113,26 @@ const AddForm:FC<Props> = ({title,
                     answers = arr;
                 }
 
-                await CommentApi.updateComment({...parentComment, answers: answers}, parent.id);
+                let updatedComment = await CommentApi.updateComment(
+                    {...parentComment, answers: answers},
+                    parent.id
+                );
+
+                console.log('updatedComment: ', updatedComment);
+
+                sendComment([...comments, comment]);
 
             } else {
                 comment = await CommentApi.addComment({...data, answers: [], file: fileName, parentId: null, level: 1, rootId: null});
-                sendComment(comment);
 
-                await CommentApi.updateComment({...data, answers: comment.answers, parentId: null, level: 1, rootId: comment.id}, comment.id);
+                let updatedComment = await CommentApi.updateComment(
+                    {...data, answers: comment.answers, parentId: null, level: 1, rootId: comment.id},
+                    comment.id
+                );
 
+                console.log('updatedComment: ', updatedComment);
+
+                sendComment([...comments, comment]);
             }
 
             const editedComment: any = {...comment};

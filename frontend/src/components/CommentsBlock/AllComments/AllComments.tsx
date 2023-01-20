@@ -46,30 +46,30 @@ const AllComments:FC<Props> = ({   comments,
                         } else if (!isMainOnly) {
                             return (
                                 <Comment key={item.id} comment={item} renderComments={this}>
-                                    {/*{item.answers?.length > 0 &&*/}
-                                    {/*  <> {item.answers.map((ans: any, idx: number) => {*/}
-                                    {/*      return (*/}
-                                    {/*          <Comment key={`${ans.id}_${idx}`} comment={ans} comments={comments}*/}
-                                    {/*                   renderComments={this} sendComment={sendComment}>*/}
+                                    {item.answers?.length > 0 &&
+                                      <> {item.answers.map((ans: any, idx: number) => {
+                                          return (
+                                              <Comment key={`${ans.id}_${idx}`} comment={ans} comments={comments}
+                                                       renderComments={this} sendComment={sendComment}>
 
-                                    {/*              {ans.answers?.length > 0 &&*/}
-                                    {/*                <> {ans.answers.map((answer: any, idx: number) => {*/}
-                                    {/*                    return (*/}
-                                    {/*                        <Comment key={`${answer.id}_${idx}`} comment={answer} comments={comments}*/}
-                                    {/*                                 renderComments={this} sendComment={sendComment}>*/}
-                                    {/*                        </Comment>*/}
-                                    {/*                    )*/}
-                                    {/*                })*/}
-                                    {/*                }*/}
-                                    {/*                </>*/}
-                                    {/*              }*/}
+                                                  {ans.answers?.length > 0 &&
+                                                    <> {ans.answers.map((answer: any, idx: number) => {
+                                                        return (
+                                                            <Comment key={`${answer.id}_${idx}`} comment={answer} comments={comments}
+                                                                     renderComments={this} sendComment={sendComment}>
+                                                            </Comment>
+                                                        )
+                                                    })
+                                                    }
+                                                    </>
+                                                  }
 
-                                    {/*          </Comment>*/}
-                                    {/*      )*/}
-                                    {/*  })*/}
-                                    {/*  }*/}
-                                    {/*  </>*/}
-                                    {/*}*/}
+                                              </Comment>
+                                          )
+                                      })
+                                      }
+                                      </>
+                                    }
                                 </Comment>)
                         }
                     })

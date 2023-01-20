@@ -24,11 +24,11 @@ export const createViewArrayOfComments = (comments: CreateCommentDtoWithId[]) =>
                 if (item2.answers?.length > 0) {
                     item2.answers = item2.answers.map((ans2: any) => comments.filter(comm => comm.id === ans2)[0]);
                     console.log('item2.answers: ', item2.answers);
-                    // item2.answers.forEach((item3: any, idx2: number, arr2: any) => {
-                    //     if (item3.answers?.length > 0) {
-                    //         item3.answers = item3.answers.map((ans3: any) => comments.filter(comm => comm.id === ans3)[0]);
-                    //     }
-                    // });
+                    item2.answers.forEach((item3: any, idx2: number, arr2: any) => {
+                        if (item3.answers?.length > 0) {
+                            item3.answers = item3.answers.map((ans3: any) => comments.filter(comm => comm.id === ans3)[0]);
+                        }
+                    });
                 }
             });
 
