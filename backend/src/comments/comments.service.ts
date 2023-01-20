@@ -1,7 +1,7 @@
-import {Injectable} from '@nestjs/common';
-import {Comment} from './comment.model';
-import {CreateCommentDto} from "./dto/create.comment.dto";
-import {InjectModel} from "@nestjs/sequelize";
+import { Injectable } from '@nestjs/common';
+import { Comment } from './comment.model';
+import { CreateCommentDto } from "./dto/create.comment.dto";
+import { InjectModel } from "@nestjs/sequelize";
 
 @Injectable()
 export class CommentsService {
@@ -25,7 +25,62 @@ export class CommentsService {
         return comment;
     }
 
-    async getSubCategoriesRecursive(category) {
+    async getAnswersRecursive(id) {
+
+        let comment = await this.commentRepository.findOne({
+            where: { id: id },
+            raw : true
+        });
+
+        let answers = await this.commentRepository.findAll({
+            where: {
+                parentId: comment.id
+            },
+            raw : true
+        });
+
+        if (answers.length > 0) {
+            const promises = [];
+            answers.forEach(answer => {
+                promises.push(this.getSubCategoriesRecursive(answer));
+            });
+            comment['answers'] = await Promise.all(promises);
+        }
+        else {
+            comment['answers'] = [];
+            return comment;
+        }
+       return comment;
+
+    };
+
+
+    async getSubCategoriesRecursive(comment) {
+
+        let answers = await this.commentRepository.findAll({
+            where: {
+                parentId: comment.id
+            },
+            raw : true
+        });
+
+        if (answers.length > 0) {
+            const promises = [];
+            answers.forEach(answer => {
+                promises.push(this.getAnswersRecursive(answer.id));
+            });
+            comment['answers'] = await Promise.all(promises);
+        }
+        else {
+            comment['answers'] = [];
+            return comment;
+        }
+        return comment;
+    };
+
+
+
+    // async getSubCategoriesRecursive(category) {
         // let subCategories = await this.commentRepository.findAll({
         //     where: {
         //         parentId: null
@@ -43,8 +98,8 @@ export class CommentsService {
         // // else
         //
         // category['answers'] = [];
-        return category;
-    };
+        // return category;
+    // };
 
     //async getAllComments(page) {
     async getAllComments() {
@@ -62,6 +117,10 @@ export class CommentsService {
             }
         );
 
+        if (comments.rows.length === 0) {
+            return comments;
+        }
+
         return comments;
     }
 
@@ -70,7 +129,7 @@ export class CommentsService {
         let offset = 0 + (page - 1) * limit;
 
         const sortParams = sort.split('_');
-        sortParams[1] = sortParams[1].toUpperCase()
+        sortParams[1] = sortParams[1].toUpperCase();
 
         const comments = await this.commentRepository.findAndCountAll(
             {
@@ -86,13 +145,23 @@ export class CommentsService {
         return comments;
     }
 
+    async getCommentAnswers(id) {
+        const answers = await this.commentRepository.findAll(
+            {
+                where: { parentId: id },
+                include: {all: true},
+            }
+        );
+        return answers;
+    }
+
     async getOneComment(id: string) {
         return await this.commentRepository.findOne({ where: { id: id } });
     }
 
-    async jsonParse(comment: any) {
-        console.log('111111 comment', comment)
-        let parsed = await JSON.parse(JSON.stringify(comment));
-        return parsed;
+    async jsonParse(data: any) {
+        console.log('jsonParse data', data)
+        let parsedData = await JSON.parse(JSON.stringify(data));
+        return parsedData;
     }
 }

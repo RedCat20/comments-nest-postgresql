@@ -14,7 +14,7 @@ interface Props {
     isMainOnly: boolean;
     currentPage: number;
     setCurrentPage: (value: number) => void;
-
+    sendComment: (value: any) => void;
     sort: string;
     setSort: (value: string) => void;
 }
@@ -25,6 +25,7 @@ const MainComments:FC<Props> = ({   comments,
                                     currentPage,
                                     setCurrentPage,
                                     sort,
+                                    sendComment,
                                     setSort}) => {
     const [pages, setPages] = useState(0);
 

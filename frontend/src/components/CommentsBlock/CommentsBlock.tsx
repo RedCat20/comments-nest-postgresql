@@ -11,8 +11,6 @@ import {CreateCommentDtoWithId} from "../../types/comment.types";
 import {CommentApi} from "../../axios";
 import {createArrayOfMainComments, createViewArrayOfComments} from "../../helpers/create.view.array.of.comments";
 import io, {Socket} from "socket.io-client";
-import TestInput from "../TestInput";
-import TestMessages from "../TestMessages";
 import TopPanel from "../TopPanel/TopPanel";
 
 interface Props { }
@@ -60,9 +58,15 @@ const CommentsBlock:FC<Props> = ({}) => {
         }
     }
 
+    const getAnswers = async () => {
+        const answersFromFirst = await CommentApi.getCommentAnswers('1');
+        console.log('answersFromFirst: ', answersFromFirst);
+    }
+
     useEffect(() => {
         if (radioValue === 'main') {
             getMainComments(sort).then(r => r);
+            getAnswers().then(r => r);
         }
     },[getMainComments, radioValue, sort]);
 
@@ -71,9 +75,9 @@ const CommentsBlock:FC<Props> = ({}) => {
 
 
 
-    const sendComment = (comment: any) => {
-        console.log('comment: ', comment);
-        socket?.emit('comment', comment);
+    const sendComment = (comments: any) => {
+        console.log('sendComment comment: ', comments);
+        socket?.emit('comment', comments);
     }
 
     useEffect(() => {
@@ -81,12 +85,11 @@ const CommentsBlock:FC<Props> = ({}) => {
         setSocket(newSocket);
     },[setSocket]);
 
-    const messageListener = (comment: any) => {
+    const messageListener = (comments: any) => {
         console.log('commentListener')
-        let newValue = [...comments];
-        newValue.push(comment)
-        console.log('newValue', newValue)
-        setComments(newValue)
+        //newValue.push(comment);
+        console.log('New comments', comments)
+        setComments(comments)
     }
 
     useEffect(() => {
@@ -127,6 +130,7 @@ const CommentsBlock:FC<Props> = ({}) => {
                           count={count}
                           currentPage={currentPage}
                           setCurrentPage={setCurrentPage}
+                          sendComment={sendComment}
             />
             :
             <Comments isMainOnly={false}
