@@ -6,21 +6,26 @@ import DialogAlert from "../../DialogAlert/DialogAlert";
 import AddForm from "../../AddForm/AddForm";
 import { ConvertedCommentDto } from "../../../types/comment.types";
 import { FilesApi } from "../../../axios";
-import Preview from "../../Preview/Preview";
+import Preview from "../../FilePreview/FilePreview";
 
 interface Props {
     comment: ConvertedCommentDto;
     children?: ReactNode;
     sendComment?: any;
     comments?: any;
+
+    isPreviewOnly?: boolean;
+    fileView?: any;
 }
 
 const CommentItem:FC<Props> = ({comment,
                                    children = null,
                                    sendComment,
-                                   comments}) => {
+                                   comments,
+                                   isPreviewOnly= false,
+                                   fileView}) => {
 
-    const [file, setFile] = useState(null);
+    const [file, setFile] = useState<any>(null);
 
     const [previewUrl, setPreviewUrl] = useState<string>('');
     const [open, setOpen] = useState(false);
@@ -36,6 +41,13 @@ const CommentItem:FC<Props> = ({comment,
         }
     }
 
+    useEffect(() => {
+        if (fileView) {
+            setPreviewUrl(fileView);
+            setFile(comment.file)
+        }
+    },[fileView]);
+
     const onShowPreviewHandler = (e: MouseEvent<HTMLImageElement>) => {
         setOpen(true);
     }
@@ -49,7 +61,7 @@ const CommentItem:FC<Props> = ({comment,
     }
 
     useEffect(() => {
-        if (comment.file) {
+        if (comment?.file && !fileView) {
             setFileToPreview();
         }
     }, [comment?.file]);
@@ -91,7 +103,7 @@ const CommentItem:FC<Props> = ({comment,
                         <Avatar/>
                         <Typography variant="subtitle1" sx={{fontWeight: 'bold'}}>
                             {/*id: {comment.id} -- {comment.userName} -- parent: {comment.parentId ?? 'null'}*/}
-                            {comment.userName}
+                            {comment.userName || 'Anonym'}
                         </Typography>
                         <Typography variant="body1">
                             <>{creatDate}</>
@@ -115,7 +127,7 @@ const CommentItem:FC<Props> = ({comment,
                     />}</div>
                 </Box>
 
-                <Box sx={{marginTop: '20px'}}>
+                {!isPreviewOnly && <Box sx={{marginTop: '20px'}}>
                     <Button
                         sx={{width: '200px'}}
                         onClick={() => setOpenDialog(true)}
@@ -124,6 +136,7 @@ const CommentItem:FC<Props> = ({comment,
                         Create answer
                     </Button>
                 </Box>
+                }
             </Box>
 
             {children}

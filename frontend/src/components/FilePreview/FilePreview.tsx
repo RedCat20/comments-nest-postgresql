@@ -1,9 +1,9 @@
 import React, {FC, MouseEvent, RefObject, useCallback, useEffect, useRef} from 'react';
-import styles from "./Preview.module.scss";
+import styles from "./FilePreview.module.scss";
 import DialogAlert from "../DialogAlert/DialogAlert";
 
 interface Props {
-    file: Blob | File & {type: string};
+    file: Blob | File & {type: string} | any;
     preview: string;
     onShowPreviewHandler: (e: MouseEvent<HTMLImageElement>) => void;
     onRemoveFileHandler: (e: MouseEvent<HTMLButtonElement | HTMLInputElement>) => void;
@@ -12,7 +12,7 @@ interface Props {
     setOpen: (item: boolean) => void;
 }
 
-const Preview:FC<Props> = ({file, preview, isViewMode = false, onShowPreviewHandler, onRemoveFileHandler, open, setOpen}) => {
+const FilePreview:FC<Props> = ({file, preview, isViewMode = false, onShowPreviewHandler, onRemoveFileHandler, open, setOpen}) => {
     const textPreviewRef = useRef<HTMLDivElement>(null);
     const textPreviewBigRef = useRef<HTMLDivElement>(null);
 
@@ -89,4 +89,4 @@ const Preview:FC<Props> = ({file, preview, isViewMode = false, onShowPreviewHand
     );
 };
 
-export default Preview;
+export default FilePreview;

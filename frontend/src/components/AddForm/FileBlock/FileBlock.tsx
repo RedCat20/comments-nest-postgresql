@@ -1,14 +1,15 @@
 import React, {ChangeEvent, MouseEvent, FC, useState, useRef, useEffect} from 'react';
 import {FormControl} from "@mui/material";
 import styles from "./FileBlock.module.scss";
-import Preview from "../../Preview/Preview";
+import Preview from "../../FilePreview/FilePreview";
 
 interface Props {
     file: File | null;
     setFile: (file: File | null) => void;
+    setPreviewTmp: (file: string) => void;
 }
 
-const FileBlock:FC<Props> = ({file, setFile}) => {
+const FileBlock:FC<Props> = ({file, setFile,setPreviewTmp}) => {
     const [previewUrl, setPreviewUrl] = useState<string>('');
     const [open, setOpen] = useState(false);
 
@@ -17,6 +18,7 @@ const FileBlock:FC<Props> = ({file, setFile}) => {
     const onChangeFileHandler = (e: ChangeEvent<HTMLInputElement> & {target: {files: File[], result: any}}) => {
         let uploadFile = e.target.files[0];
         setFile(uploadFile);
+        setPreviewTmp(URL.createObjectURL(uploadFile));
     }
 
     const onRemoveFileHandler = (e: MouseEvent<HTMLButtonElement | HTMLInputElement>) => {

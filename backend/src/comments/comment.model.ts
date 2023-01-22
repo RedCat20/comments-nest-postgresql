@@ -1,9 +1,9 @@
 import { Column, DataType, Model, Table } from "sequelize-typescript";
-import { CommentCreationAttrs } from "./interfaces/comment.interfaces";
+import { ICommentDto, ICommentsQuery } from "./interfaces/comment.interfaces";
 
 
 @Table({tableName: 'comments'})
-export class Comment extends Model<Comment, CommentCreationAttrs> {
+export class Comment extends Model<Comment, ICommentsQuery> {
 
     @Column({
         type: DataType.INTEGER,
