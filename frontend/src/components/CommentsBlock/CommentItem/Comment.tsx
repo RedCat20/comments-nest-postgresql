@@ -10,7 +10,6 @@ import Preview from "../../Preview/Preview";
 
 interface Props {
     comment: ConvertedCommentDto;
-    renderComments: any;
     children?: ReactNode;
     sendComment?: any;
     comments?: any;

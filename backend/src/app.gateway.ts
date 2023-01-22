@@ -9,13 +9,13 @@ export class AppGateway {
 
   @SubscribeMessage('message')
   handleMessage(@MessageBody() message: string): void {
-    console.log('message', message);
+    // console.log('message', message);
     this.server.emit('message', message);
   }
 
   @SubscribeMessage('comment')
   handleComments(@MessageBody() comment: CreateCommentDto): void {
-    console.log('comment', comment);
+    // console.log('comment', comment);
     this.server.emit('comment', comment);
   }
 }

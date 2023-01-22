@@ -1,4 +1,5 @@
-import React, {FC} from 'react';
+import React, { FC } from 'react';
+import styles from "./TestMessages.module.scss";
 
 interface Props {
     messages: string[];
@@ -6,10 +7,10 @@ interface Props {
 
 const TestMessages:FC<Props> = ({messages}) => {
     return (
-        <div>
+        <div className={styles.messagesBlock}>
             {messages.map((message: string, idx: number) => {
                 return (
-                    <div key={idx}>{message}</div>
+                    <div key={idx}>{idx + 1} ) {message}</div>
                 )
             })}
         </div>

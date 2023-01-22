@@ -84,11 +84,11 @@ const AddForm:FC<Props> = ({title,
 
         try {
             fileName = await FilesApi.addFile(imageFormData);
-            console.log('fileName: ', fileName);
+            // console.log('fileName: ', fileName);
             if (fileName) {
                 bodyFormData.append('file', fileName);
             }
-            console.log(file);
+            // console.log(file);
         } catch(err) {
             console.log(err);
         }
@@ -96,49 +96,49 @@ const AddForm:FC<Props> = ({title,
         try {
             let comment: CommentWithCaptcha;
 
-            console.log('All comments from add form: ', comments);
+            // console.log('All comments from add form: ', comments);
 
             if (parent?.id) {
                 comment = await CommentApi.addComment({...data, answers: [], file: fileName, rootId: parent.rootId, parentId: parent.id, level: (parent.level + 1)});
 
-                let parentComment = await CommentApi.getOneComment(parent.id.toString());
+                // let parentComment = await CommentApi.getOneComment(parent.id.toString());
 
-                let answers: any = [];
+                // let answers: any = [];
 
-                if ((parentComment.answers === null) || (parentComment.answers?.length === 0) ) {
-                    answers = [comment.id];
-                } else {
-                    const arr = [...parentComment.answers];
-                    arr.push(comment.id);
-                    answers = arr;
-                }
+                // if ((parentComment.answers === null) || (parentComment.answers?.length === 0) ) {
+                //    answers = [comment.id];
+                // } else {
+                //     const arr = [...parentComment.answers];
+                //     arr.push(comment.id);
+                //     answers = arr;
+                // }
 
-                let updatedComment = await CommentApi.updateComment(
-                    {...parentComment, answers: answers},
-                    parent.id
-                );
+                // let updatedComment = await CommentApi.updateComment(
+                //    {...parentComment, answers: answers},
+                //    parent.id
+                // );
 
-                console.log('updatedComment: ', updatedComment);
+                // console.log('updatedComment: ', updatedComment);
 
                 sendComment([...comments, comment]);
 
             } else {
                 comment = await CommentApi.addComment({...data, answers: [], file: fileName, parentId: null, level: 1, rootId: null});
 
-                let updatedComment = await CommentApi.updateComment(
-                    {...data, answers: comment.answers, parentId: null, level: 1, rootId: comment.id},
-                    comment.id
-                );
+                // let updatedComment = await CommentApi.updateComment(
+                //    {...data, answers: comment.answers, parentId: null, level: 1, rootId: comment.id},
+                //    comment.id
+                // );
 
-                console.log('updatedComment: ', updatedComment);
+                //console.log('updatedComment: ', updatedComment);
 
                 sendComment([...comments, comment]);
             }
 
-            const editedComment: any = {...comment};
+            // const editedComment: any = {...comment};
 
-            if (editedComment.captcha)
-                delete editedComment.captcha;
+            // if (editedComment.captcha)
+            //     delete editedComment.captcha;
 
         } catch(err) {
             console.log(err);
@@ -219,6 +219,7 @@ const AddForm:FC<Props> = ({title,
                         color="info">
                         {title2}
                     </Button>
+
                     <Button
                         type="submit"
                         sx={{width: '200px'}}

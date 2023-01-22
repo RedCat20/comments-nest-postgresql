@@ -1,7 +1,10 @@
-import React, {useEffect, useState} from 'react';
-import TestInput from "./TestInput";
-import TestMessages from "./TestMessages";
-import io, {Socket} from "socket.io-client";
+import React, {useCallback, useEffect, useState} from 'react';
+import io, { Socket } from "socket.io-client";
+
+import TestInput from "./TestInput/TestInput";
+import TestMessages from "./TestMessages/TestMessages";
+
+import styles from './TestBlock.module.scss';
 
 const TestBlock = () => {
 
@@ -17,19 +20,19 @@ const TestBlock = () => {
         setSocket(newSocket);
     },[setSocket]);
 
-    const messageListener = (message: string) => {
+    const messageListener = useCallback((message: string) => {
         setMessages([...messages, message])
-    }
+    }, [messages]);
 
     useEffect(() => {
         socket?.on('message', messageListener)
         return () => {
             socket?.off('message', messageListener);
         }
-    },[messageListener]);
+    },[messageListener, socket]);
 
     return (
-        <div>
+        <div className={styles.testBlock}>
             <TestInput send={send} />
             <TestMessages messages={messages} />
         </div>

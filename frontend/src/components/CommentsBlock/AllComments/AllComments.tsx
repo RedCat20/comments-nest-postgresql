@@ -36,50 +36,50 @@ const AllComments:FC<Props> = ({   comments,
 
     const renderComments = (commentsCopy: any = comments) => {
         console.log(commentsCopy)
-        if (commentsCopy) {
-            return (
-                <>
-                    {commentsCopy.map((item: ConvertedCommentDto, idx: number) => {
-                        if (isMainOnly || item.answers?.length === 0) {
-                            return <Comment key={`comment_${idx}`} comment={item} comments={comments}
-                                            renderComments={this} sendComment={sendComment}/>
-                        } else if (!isMainOnly) {
-                            return (
-                                <Comment key={item.id} comment={item} renderComments={this}>
-                                    {item.answers?.length > 0 &&
-                                      <> {item.answers.map((ans: any, idx: number) => {
-                                          return (
-                                              <Comment key={`${ans.id}_${idx}`} comment={ans} comments={comments}
-                                                       renderComments={this} sendComment={sendComment}>
-
-                                                  {ans.answers?.length > 0 &&
-                                                    <> {ans.answers.map((answer: any, idx: number) => {
-                                                        return (
-                                                            <Comment key={`${answer.id}_${idx}`} comment={answer} comments={comments}
-                                                                     renderComments={this} sendComment={sendComment}>
-                                                            </Comment>
-                                                        )
-                                                    })
-                                                    }
-                                                    </>
-                                                  }
-
-                                              </Comment>
-                                          )
-                                      })
-                                      }
-                                      </>
-                                    }
-                                </Comment>)
-                        }
-                    })
-                    }
-                </>
-            )
-        }
-        else {
-            return null
-        }
+        // if (commentsCopy) {
+        //     return (
+        //         <>
+        //             {commentsCopy.map((item: ConvertedCommentDto, idx: number) => {
+        //                 if (isMainOnly || item.answers?.length === 0) {
+        //                     return <Comment key={`comment_${idx}`} comment={item} comments={comments}
+        //                                     renderComments={this} sendComment={sendComment}/>
+        //                 } else if (!isMainOnly) {
+        //                     return (
+        //                         <Comment key={item.id} comment={item} renderComments={this}>
+        //                             {item.answers?.length > 0 &&
+        //                               <> {item.answers.map((ans: any, idx: number) => {
+        //                                   return (
+        //                                       <Comment key={`${ans.id}_${idx}`} comment={ans} comments={comments}
+        //                                                renderComments={this} sendComment={sendComment}>
+        //
+        //                                           {ans.answers?.length > 0 &&
+        //                                             <> {ans.answers.map((answer: any, idx: number) => {
+        //                                                 return (
+        //                                                     <Comment key={`${answer.id}_${idx}`} comment={answer} comments={comments}
+        //                                                              renderComments={this} sendComment={sendComment}>
+        //                                                     </Comment>
+        //                                                 )
+        //                                             })
+        //                                             }
+        //                                             </>
+        //                                           }
+        //
+        //                                       </Comment>
+        //                                   )
+        //                               })
+        //                               }
+        //                               </>
+        //                             }
+        //                         </Comment>)
+        //                 }
+        //             })
+        //             }
+        //         </>
+        //     )
+        // }
+        // else {
+        //    return null
+        // }
     }
 
     return (
@@ -88,7 +88,7 @@ const AllComments:FC<Props> = ({   comments,
               <div className={styles.noComments}>No comments, please add smth</div>
             }
 
-            {renderComments()}
+            {/*{renderComments()}*/}
 
             <div className={styles.pages}>
                 {new Array(pages).fill(undefined).map((item, idx) => {

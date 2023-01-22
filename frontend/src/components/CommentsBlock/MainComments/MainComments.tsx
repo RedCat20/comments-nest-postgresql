@@ -42,25 +42,25 @@ const MainComments:FC<Props> = ({   comments,
     }
 
     const renderComments = (commentsCopy: any = comments) => {
-        if (comments) {
-            console.log('Main comments: ', comments);
-            return (
-                <>
-                    {commentsCopy.map((item: ConvertedCommentDto, idx: number) => {
-                        if (isMainOnly || item.answers?.length === 0) {
-                            return <Comment key={`comment_${idx}`} comment={item} renderComments={this}/>
-                        } else {
-                            return ( <Comment key={item.id} comment={item}renderComments={this}>
-                                {item.answers?.length > 0 &&
-                                    item.answers.map((ans: any, idx: number) => {
-                                        return <Comment key={`${ans.id}_${idx}`} comment={ans} renderComments={this}/>;
-                                    })}
-                            </Comment> )
-                        }
-                    } )}
-                </>
-            )
-        }
+        // if (comments) {
+        //     console.log('Main comments: ', comments);
+        //     return (
+        //         <>
+        //             {commentsCopy.map((item: ConvertedCommentDto, idx: number) => {
+        //                 if (isMainOnly || item.answers?.length === 0) {
+        //                     return <Comment key={`comment_${idx}`} comment={item} renderComments={this}/>
+        //                 } else {
+        //                     return ( <Comment key={item.id} comment={item}renderComments={this}>
+        //                         {item.answers?.length > 0 &&
+        //                             item.answers.map((ans: any, idx: number) => {
+        //                                 return <Comment key={`${ans.id}_${idx}`} comment={ans} renderComments={this}/>;
+        //                             })}
+        //                     </Comment> )
+        //                 }
+        //             } )}
+        //         </>
+        //     )
+        // }
         return null
     }
 

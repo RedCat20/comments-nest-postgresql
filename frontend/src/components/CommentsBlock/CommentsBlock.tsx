@@ -1,79 +1,61 @@
-import React, {ChangeEvent, FC, MouseEvent, useCallback, useEffect, useState} from 'react';
-import MainComments from "./MainComments/MainComments";
-import Comments from "./AllComments/AllComments";
-import styles from "../App.module.scss";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Radio from "@mui/material/Radio";
+import React, { FC, MouseEvent, useCallback, useEffect, useState } from 'react';
+import styles from "./CommentsBlock.module.scss";
 import {CreateCommentDtoWithId} from "../../types/comment.types";
 import {CommentApi} from "../../axios";
-import {createArrayOfMainComments, createViewArrayOfComments} from "../../helpers/create.view.array.of.comments";
 import io, {Socket} from "socket.io-client";
 import TopPanel from "../TopPanel/TopPanel";
+import Comments from "./Comments/Comments";
+import {Box, Button} from "@mui/material";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select, {SelectChangeEvent} from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
 interface Props { }
 
 const CommentsBlock:FC<Props> = ({}) => {
     const [comments, setComments] = useState<CreateCommentDtoWithId[]>([]);
     const [count, setCount] = useState<number>(0);
-    const [radioValue, setRadioValue] = useState('all')
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [sort, setSort] = useState<string>('createdAt_desc');
 
     const [socket, setSocket] = useState<Socket>();
 
-    const getMainComments = useCallback(async (sortParam: string) => {
-        const comments = await CommentApi.getMainComments(currentPage, sort );
-        const mainComments = createArrayOfMainComments(comments.rows);
-        setComments(mainComments);
-        setCount(comments.count);
-    },[currentPage, sort]);
-
-    const getComments = async () => {
-        const comments = await CommentApi.getAllComments(currentPage);
-        setComments(createViewArrayOfComments(comments.rows));
-        setCount(comments.count);
+    const getCommentAnswers = async (id: number) => {
+        const answers = await CommentApi.getCommentAnswers(id.toString());
+        console.log('answers: ', answers);
+        return answers;
     }
 
-    const setAllComments = async () => {
-        const comments = await CommentApi.getAllComments(currentPage);
-        setComments(comments.rows);
+    const getComments = useCallback(async () => {
+        const comments = await CommentApi.getMainComments(currentPage, sort);
+        // setComments(createViewArrayOfComments(comments.rows));
+
+        let modifiedComments = await Promise.all(
+            comments.rows.map(async (item: any) => {
+                const comment = await getCommentAnswers(item.id);
+                return comment;
+            })
+        );
+
+        // modifiedComments = modifiedComments.filter(item => item.parentId === null);
+
+        // console.log('modifiedComments: ', modifiedComments);
+
+        // setComments(comments.rows);
+        setComments(modifiedComments);
         setCount(comments.count);
-    }
+    },[currentPage,sort]);
 
     useEffect(() => {
         getComments().then(r => r);
-    },[currentPage]);
+        // getAnswers().then(r => r);
+    },[currentPage, getComments]);
 
-    const handleRadioChange = async (e: ChangeEvent<HTMLInputElement>) => {
-        setRadioValue(e.target.value);
-        if (e.target.value === 'main') {
-            const comments = await CommentApi.getMainComments(currentPage, sort);
-            const mainComments = createArrayOfMainComments(comments.rows);
-            setComments(mainComments);
-        } else {
-            getComments().then(r => r);
-        }
-    }
-
-    const getAnswers = async () => {
-        const answersFromFirst = await CommentApi.getCommentAnswers('1');
-        console.log('answersFromFirst: ', answersFromFirst);
-    }
-
-    useEffect(() => {
-        if (radioValue === 'main') {
-            getMainComments(sort).then(r => r);
-            getAnswers().then(r => r);
-        }
-    },[getMainComments, radioValue, sort]);
-
-
-
-
-
+    //const getAnswers = async () => {
+    //    const answersFromFirst = await CommentApi.getCommentAnswers('1');
+    //     console.log('answersFromFirst: ', answersFromFirst);
+    // }
 
     const sendComment = (comments: any) => {
         console.log('sendComment comment: ', comments);
@@ -101,47 +83,140 @@ const CommentsBlock:FC<Props> = ({}) => {
 
 
 
+    ///// Sorting
+
+
+
+    const [userName, setUserName] = useState('');
+    const [email, setEmail] = useState('');
+    const [createdDate, setCreatedDate] = useState('desc');
+
+    const handleChangeUserName = (event: SelectChangeEvent) => {
+        setUserName(event.target.value as string);
+        setSort(`userName_${event.target.value}`);
+
+        setEmail('');
+        setCreatedDate('');
+    };
+    const handleChangeEmail = (event: SelectChangeEvent) => {
+        setEmail(event.target.value as string);
+        setSort(`email_${event.target.value}`);
+
+        setUserName('');
+        setCreatedDate('');
+    };
+    const handleChangeCreatedDate = (event: SelectChangeEvent) => {
+        setCreatedDate(event.target.value as string);
+        setSort(`createdAt_${event.target.value}`);
+
+        setUserName('');
+        setEmail('');
+    };
+
+
+
+
+    ///// Pages
+
+    const [pages, setPages] = useState(0);
+
+    useEffect(() => {
+        setPages(Math.ceil(count / 25));
+    }, [count]);
+
+    const onClickPageHandler = (page: number) => {
+        setCurrentPage(page);
+    }
+
+    const onChangePageHandler = (e: MouseEvent<HTMLButtonElement>, idx: number) => {
+        onClickPageHandler(idx + 1);
+    }
+
     return (
-        <>
+        <div>
             <TopPanel sendComment={sendComment} comments={comments}/>
 
-            <div className={styles.switcher}>
-            <FormControl>
-                <FormLabel id="demo-radio-buttons-group-label">Type of comments</FormLabel>
-                <RadioGroup
-                    aria-labelledby="comment-radio-buttons-group-label"
-                    defaultValue="all"
-                    name="radio-buttons-group"
-                    value={radioValue}
-                    onChange={handleRadioChange}
-                >
-                    <FormControlLabel value="all" control={<Radio />} label="All comments" />
-                    <FormControlLabel value="main" control={<Radio />} label="Main comments with sorting" />
-                </RadioGroup>
-            </FormControl>
-        </div>
 
-        {radioValue === 'main'
-            ?
-            <MainComments sort={sort}
-                          setSort={setSort}
-                          isMainOnly={true}
-                          comments={comments}
-                          count={count}
-                          currentPage={currentPage}
-                          setCurrentPage={setCurrentPage}
-                          sendComment={sendComment}
-            />
-            :
-            <Comments isMainOnly={false}
-                      comments={comments}
-                      count={count}
-                      currentPage={currentPage}
-                      setCurrentPage={setCurrentPage}
-                      sendComment={sendComment}
-            />
-            }
-        </>
+            <h2>Sorting</h2>
+
+            <div className={styles.sorting}>
+                <div>
+                    <span>User name</span>
+                    <br/> <br/>
+                    <Box sx={{ minWidth: 150 }}>
+                        <FormControl fullWidth>
+                            <InputLabel id="user-name-select-label">asc/desc</InputLabel>
+                            <Select
+                                labelId="user-name-select-label"
+                                id="user-name-select"
+                                value={userName}
+                                label="asc/desc"
+                                onChange={handleChangeUserName}
+                            >
+                                <MenuItem value={'asc'}>Ascendance</MenuItem>
+                                <MenuItem value={'desc'}>Descendence</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+                </div>
+                <div>
+                    <span>Email</span>
+                    <br/> <br/>
+                    <Box sx={{ minWidth: 150 }}>
+                        <FormControl fullWidth>
+                            <InputLabel id="email-select-label">asc/desc</InputLabel>
+                            <Select
+                                labelId="email-select-label"
+                                id="email-select"
+                                value={email}
+                                label="asc/desc"
+                                onChange={handleChangeEmail}
+                            >
+                                <MenuItem value={'asc'}>Ascendance</MenuItem>
+                                <MenuItem value={'desc'}>Descendence</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+                </div>
+                <div>
+                    <span>Created date</span>
+                    <br/> <br/>
+                    <Box sx={{ minWidth: 150 }}>
+                        <FormControl fullWidth>
+                            <InputLabel id="created-date-select-label">asc/desc</InputLabel>
+                            <Select
+                                labelId="created-date-select-label"
+                                id="created-date-select"
+                                value={createdDate}
+                                label="asc/desc"
+                                onChange={handleChangeCreatedDate}
+                            >
+                                <MenuItem value={'asc'}>Ascendance</MenuItem>
+                                <MenuItem value={'desc'}>Descendence</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+                </div>
+            </div>
+
+
+            <div className={styles.comments}>
+                <Comments comments={comments} sendComment={sendComment}/>
+            </div>
+
+            <div className={styles.pages}>
+                {new Array(pages).fill(undefined).map((item, idx) => {
+                    return <Button key={idx}
+                                   variant="contained"
+                                   color={(currentPage - 1 === idx) ? 'warning' : 'secondary'}
+                                   onClick={(e: MouseEvent<HTMLButtonElement>) => onChangePageHandler(e, idx)}
+                    >
+                        {idx + 1}
+                    </Button>
+                })}
+            </div>
+
+        </div>
     );
 };
 
