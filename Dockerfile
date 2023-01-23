@@ -2,7 +2,7 @@ FROM node:12.13-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY /backend/package*.json ./
 
 RUN npm install
 
@@ -21,7 +21,7 @@ FROM node:12.13-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY /frontend/package*.json ./
 
 COPY . .
 
