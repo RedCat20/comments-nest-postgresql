@@ -1,12 +1,14 @@
 FROM node:12.13-alpine
 
-WORKDIR ./backend
+WORKDIR /app
 
-COPY ./package*.json ./
+COPY package*.json ./
+
+RUN npm install
 
 COPY . .
 
-RUN npm install
+COPY ./dist ./dist
 
 EXPOSE 5000
 
@@ -14,11 +16,12 @@ CMD ["npm", "run", "build"]
 
 CMD ["npm", "run", "start:dev"]
 
+
 FROM node:12.13-alpine
 
-WORKDIR ./frontend
+WORKDIR /app
 
-COPY ./package*.json ./
+COPY package*.json ./
 
 COPY . .
 
