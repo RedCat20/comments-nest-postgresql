@@ -31,6 +31,6 @@ CMD ["npm", "run", "build"]
 
 EXPOSE 3000
 
-COPY --from=builder /app/public /usr/share/nginx/html
+COPY /app/public /usr/share/nginx/html
 
 CMD ["npm", "run", "start"]
