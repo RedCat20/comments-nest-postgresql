@@ -27,10 +27,6 @@ RUN npm install
 
 COPY . ./
 
-CMD ["npm", "run", "build"]
-
 EXPOSE 3000
 
-COPY ./frontend/public ./frontend/dist
-
-CMD ["npm", "run", "start"]
+CMD ["npm", "start"]
