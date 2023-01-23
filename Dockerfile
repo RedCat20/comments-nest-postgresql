@@ -31,4 +31,6 @@ EXPOSE 3000
 
 CMD ["npm", "run", "build"]
 
+COPY ./build ./public
+
 CMD ["npm", "run", "start"]
