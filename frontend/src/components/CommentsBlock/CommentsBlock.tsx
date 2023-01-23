@@ -68,7 +68,9 @@ const CommentsBlock:FC<Props> = ({ }) => {
 
     const messageListener = (comments: any) => {
         console.log('Comment listener new comments', comments)
-        setComments(comments)
+
+        getComments().then(r => r);
+        // setComments(comments)
     }
 
     useEffect(() => {
