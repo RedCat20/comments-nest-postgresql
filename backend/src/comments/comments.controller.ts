@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import {Body, Controller, Get, Param, Patch, Post, Req, UsePipes} from '@nestjs/common';
 import { CommentsService } from "./comments.service";
 import { ICommentDto, ICommentsQuery } from "./interfaces/comment.interfaces";
+import {ValidationPipe} from "../pipes/validation.pipe";
+import {CreateCommentDto} from "./dto/create.comment.dto";
 
 @Controller('comments')
 export class CommentsController {
@@ -21,8 +23,9 @@ export class CommentsController {
         return this.commentsService.getAllComments(page, sort);
     }
 
+    @UsePipes(ValidationPipe)
     @Post()
-    create(@Body() commentDto: ICommentDto) {
+    create(@Body() commentDto: CreateCommentDto) {
         return this.commentsService.createComment(commentDto)
     }
 
