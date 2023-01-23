@@ -31,6 +31,6 @@ CMD ["npm", "run", "build"]
 
 EXPOSE 3000
 
-COPY /app/frontend/public /usr/share/nginx/html
+COPY /frontend/public /frontend/dist
 
 CMD ["npm", "run", "start"]
