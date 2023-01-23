@@ -6,13 +6,13 @@ COPY /backend/package*.json ./
 
 RUN npm install
 
-COPY . .
+COPY . ./
 
 COPY /backend/dist /backend/dist
 
-EXPOSE 5000
-
 CMD ["npm", "run", "build"]
+
+EXPOSE 5000
 
 CMD ["npm", "run", "start:dev"]
 
@@ -23,14 +23,14 @@ WORKDIR /app
 
 COPY /frontend/package*.json ./
 
-COPY . .
-
 RUN npm install
 
-EXPOSE 3000
+COPY . ./
 
 CMD ["npm", "run", "build"]
 
-COPY /frontend/public ./public
+EXPOSE 3000
+
+COPY --from=builder /app/public /usr/share/nginx/html
 
 CMD ["npm", "run", "start"]
