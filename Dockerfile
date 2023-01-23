@@ -31,6 +31,6 @@ EXPOSE 3000
 
 CMD ["npm", "run", "build"]
 
-COPY /frontend/build /frontend/public
+COPY /frontend/public /frontend/dist
 
 CMD ["npm", "run", "start"]
