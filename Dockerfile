@@ -8,7 +8,7 @@ RUN npm install
 
 COPY . .
 
-COPY ./dist ./dist
+COPY /backend/dist /backend/dist
 
 EXPOSE 5000
 
@@ -31,6 +31,6 @@ EXPOSE 3000
 
 CMD ["npm", "run", "build"]
 
-COPY ./build ./public
+COPY /frontend/build /frontend/public
 
 CMD ["npm", "run", "start"]
