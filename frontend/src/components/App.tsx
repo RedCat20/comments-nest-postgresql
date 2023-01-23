@@ -1,31 +1,22 @@
 import { FC } from 'react';
-import styles from './App.module.scss';
 import { Container, ThemeProvider } from "@mui/material";
-import { theme } from "../assets/theme";
+import { themeInstance, containerStyleObj } from "../assets/theme";
+import styles from './App.module.scss';
 
-import TopPanel from "./TopPanel/TopPanel";
 import CommentsBlock from "./CommentsBlock/CommentsBlock";
-import TestBlock from "./TestBlock";
 
-const containerStyle = { background: '#cccccc', minHeight: '100vh', padding: '24px' };
 
 const App:FC = () => {
 
     return (
-        <ThemeProvider theme={theme}>
-
-            <Container sx={containerStyle}>
+        <ThemeProvider theme={themeInstance}>
+            <Container sx={containerStyleObj}>
 
                 <div className={styles.content}>
-
-                    <TestBlock/>
-
                     <CommentsBlock />
-
                 </div>
 
             </Container>
-
         </ThemeProvider>
     );
 }

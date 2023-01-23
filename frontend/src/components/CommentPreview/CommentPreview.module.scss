@@ -1,0 +1,26 @@
+.previewWindow {
+  max-width: 100%;
+  min-width: 600px;
+  min-height: 400px;
+  margin-top: 5px;
+  padding: 30px;
+}
+
+.block {
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: rgb(228, 238, 250);
+
+  & > div {
+    padding: 5px 10px;
+    background: #fff;
+    margin: 2px;
+    overflow: hidden;
+
+  }
+}
+
+.table {
+  border: 2px solid rgb(228, 238, 250);
+}

@@ -1,0 +1,12 @@
+
+.sorting {
+  background: #eaeaea;
+  padding: 15px 30px;
+  color: black;
+  font-weight: bold;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 30px;
+  justify-content: space-between;
+  align-items: center;
+}

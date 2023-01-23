@@ -1,37 +1,38 @@
-import {FC, FormEvent, useState} from 'react';
-import {Box, Button, FormControl, FormHelperText, Paper, TextField, Typography} from "@mui/material";
+import { FC, FormEvent, useState } from 'react';
+import { Box, Button, FormControl, FormHelperText, Paper, TextField, Typography } from "@mui/material";
+import { CommentApi, FilesApi } from "../../axios";
+
 import styles from "./AddForm.module.scss";
-import {validateForm} from '../../helpers/validate.form';
-import {CommentApi, FilesApi} from "../../axios";
-import {CommentWithCaptcha, ConvertedCommentDto} from "../../types/comment.types";
+
+import { validateForm } from '../../helpers/validate.form';
+import { CommentWithCaptcha, ConvertedCommentDto } from "../../types/comment.types";
+import { IFormData } from "../../types/form.data";
 import captchaImg from "../../assets/img/captcha.jpg";
+
 import FileBlock from "./FileBlock/FileBlock";
 import TextareaBlock from "./TextAreaBlock/TextareaBlock";
-import {IFormData} from "../../types/form.data";
+import DialogAlert from "../DialogAlert/DialogAlert";
+import CommentPreview from "../CommentPreview/CommentPreview";
 
-export const CORRECT_CAPTCHA = 'smwm';
 
 interface Props {
     title?: string;
-    title2?: string;
-    setIsShow?: (value: boolean) => void;
     specialCallback?: any;
-    parent?: ConvertedCommentDto | null;
+    parent: ConvertedCommentDto | null;
     sendComment: (value: any) => void;
     comments: any;
 }
 
-const AddForm:FC<Props> = ({title,
-                            setIsShow,
-                            specialCallback,
-                            parent,
-                            title2= 'Preview',
-                            sendComment,
-                            comments
-}) => {
-    const [file, setFile] = useState<File | null>(null);
+const AddForm:FC<Props> = ({ title, specialCallback, parent, sendComment, comments}) => {
 
-    const [data, setData] = useState<IFormData>({
+    const [ openDialog, setOpenDialog ] = useState(false);
+
+    const [ file, setFile ] = useState<File | null>(null);
+    const [ previewTmp, setPreviewTmp ] = useState('');
+
+    const [ extension, setExtension ] =  useState('');
+
+    const [ data, setData ] = useState<IFormData>({
         userName: '',
         email: '',
         homePage: '',
@@ -55,9 +56,11 @@ const AddForm:FC<Props> = ({title,
     const [isEmptyRequiredFields, setIsEmptyRequiredFields] = useState(false);
 
     const onSubmitHandler = async (e: FormEvent<HTMLFormElement>) => {
+
         e.preventDefault();
 
         let isEmpty = false;
+
         if (!(data.userName.length) || !(data.email.length) || !(data.captcha.length) || !(data.text.length)) {
             setIsEmptyRequiredFields(true);
             isEmpty = true;
@@ -84,153 +87,134 @@ const AddForm:FC<Props> = ({title,
 
         try {
             fileName = await FilesApi.addFile(imageFormData);
-            console.log('fileName: ', fileName);
             if (fileName) {
                 bodyFormData.append('file', fileName);
             }
-            console.log(file);
-        } catch(err) {
+        }
+        catch(err) {
             console.log(err);
         }
 
         try {
             let comment: CommentWithCaptcha;
 
-            console.log('All comments from add form: ', comments);
-
             if (parent?.id) {
                 comment = await CommentApi.addComment({...data, answers: [], file: fileName, rootId: parent.rootId, parentId: parent.id, level: (parent.level + 1)});
-
-                let parentComment = await CommentApi.getOneComment(parent.id.toString());
-
-                let answers: any = [];
-
-                if ((parentComment.answers === null) || (parentComment.answers?.length === 0) ) {
-                    answers = [comment.id];
-                } else {
-                    const arr = [...parentComment.answers];
-                    arr.push(comment.id);
-                    answers = arr;
-                }
-
-                let updatedComment = await CommentApi.updateComment(
-                    {...parentComment, answers: answers},
-                    parent.id
-                );
-
-                console.log('updatedComment: ', updatedComment);
-
                 sendComment([...comments, comment]);
 
             } else {
                 comment = await CommentApi.addComment({...data, answers: [], file: fileName, parentId: null, level: 1, rootId: null});
-
-                let updatedComment = await CommentApi.updateComment(
-                    {...data, answers: comment.answers, parentId: null, level: 1, rootId: comment.id},
-                    comment.id
-                );
-
-                console.log('updatedComment: ', updatedComment);
-
                 sendComment([...comments, comment]);
             }
-
-            const editedComment: any = {...comment};
-
-            if (editedComment.captcha)
-                delete editedComment.captcha;
-
-        } catch(err) {
+        }
+        catch(err) {
             console.log(err);
-        } finally {
-            if (setIsShow)
-                setIsShow(false);
-            if (specialCallback && specialCallback(true))
+        }
+        finally {
+            if (specialCallback && specialCallback(true)) {
                 specialCallback();
+            }
         }
     }
 
     return (
-        <Paper className={styles.form}>
+        <>
+            <Paper className={styles.form}>
 
-            <div className={styles.block}>
-                <Typography align="center" variant="h6">{title}</Typography>
-            </div>
-
-            <form onSubmit={onSubmitHandler}>
-
-                {/* User name */}
                 <div className={styles.block}>
-                    <FormControl fullWidth>
-                        <TextField size="small" error={enterUserNameError} name="userName" type="text" label="User name *" variant="outlined" onChange={updateData}/>
-                        <FormHelperText>Numbers and latin letters only.</FormHelperText>
-                        {enterUserNameError && <div className={styles.error}>Not valid user name</div>}
-                    </FormControl>
+                    <Typography align="center" variant="h6">{title}</Typography>
                 </div>
 
-                {/* Email */}
-                <div className={styles.block}>
-                    <FormControl fullWidth>
-                        <TextField size="small" error={enterEmailError} name="email" type="text" fullWidth label="Email *" variant="outlined" onChange={updateData}/>
-                        <FormHelperText>Email format such as myemail@mail.com.</FormHelperText>
-                        {enterEmailError && <div className={styles.error}>Not valid email</div>}
-                    </FormControl>
-                </div>
+                <form onSubmit={onSubmitHandler}>
 
-                {/* Home page */}
-                <div className={styles.block}>
-                    <FormControl fullWidth>
-                        <TextField size="small" error={enterHomePageError} name="homePage" type="text" fullWidth label="Homepage" variant="outlined" onChange={updateData}/>
-                        <FormHelperText>Url format such as https://mysite.com.</FormHelperText>
-                        {enterHomePageError && <div className={styles.error}>Not valid url</div>}
-                    </FormControl>
-                </div>
-
-                {/* Captcha */}
-                <div className={styles.block}>
-                    <Box className={`${styles.block} ${styles.captcha}`}>
-                        <img src={captchaImg} alt="Captcha"/>
+                    {/* User name */}
+                    <div className={styles.block}>
                         <FormControl fullWidth>
-                            <TextField size="small" error={enterCaptchaError} name="captcha" type="text" label="Captcha *" variant="outlined" onChange={updateData}/>
-                            <FormHelperText>Please enter the captcha from picture.</FormHelperText>
-                            {enterCaptchaError && <div className={styles.error}>Not valid captcha</div>}
+                            <TextField size="small" error={enterUserNameError} name="userName" type="text" label="User name *" variant="outlined" onChange={updateData}/>
+                            <FormHelperText>Numbers and latin letters only.</FormHelperText>
+                            {enterUserNameError && <div className={styles.error}>Not valid user name</div>}
                         </FormControl>
-                    </Box>
-                </div>
+                    </div>
 
-                {/* Text */}
-                <div className={styles.block}>
-                    <TextareaBlock updateData={updateData} enterTextError={enterTextError} setEnterTextError={setEnterTextError}/>
-                </div>
+                    {/* Email */}
+                    <div className={styles.block}>
+                        <FormControl fullWidth>
+                            <TextField size="small" error={enterEmailError} name="email" type="text" fullWidth label="Email *" variant="outlined" onChange={updateData}/>
+                            <FormHelperText>Email format such as myemail@mail.com.</FormHelperText>
+                            {enterEmailError && <div className={styles.error}>Not valid email</div>}
+                        </FormControl>
+                    </div>
 
-                {/* File */}
-                <div className={styles.block}>
-                   <FileBlock file={file} setFile={setFile}/>
-                </div>
+                    {/* Home page */}
+                    <div className={styles.block}>
+                        <FormControl fullWidth>
+                            <TextField size="small" error={enterHomePageError} name="homePage" type="text" fullWidth label="Homepage" variant="outlined" onChange={updateData}/>
+                            <FormHelperText>Url format such as https://mysite.com.</FormHelperText>
+                            {enterHomePageError && <div className={styles.error}>Not valid url</div>}
+                        </FormControl>
+                    </div>
 
-                {/* Validation result */}
-                {isEmptyRequiredFields && <div className={`${styles.error} ${styles.big}`}>There are empty required fields!</div>}
+                    {/* Captcha */}
+                    <div className={styles.block}>
+                        <Box className={`${styles.block} ${styles.captcha}`}>
+                            <img src={captchaImg} alt="Captcha"/>
+                            <FormControl fullWidth>
+                                <TextField size="small" error={enterCaptchaError} name="captcha" type="text" label="Captcha *" variant="outlined" onChange={updateData}/>
+                                <FormHelperText>Please enter the captcha from picture.</FormHelperText>
+                                {enterCaptchaError && <div className={styles.error}>Not valid captcha</div>}
+                            </FormControl>
+                        </Box>
+                    </div>
 
-                <div className={`${styles.sendBtnWrap}`}>
-                    <Button
-                        type="button"
-                        sx={{width: '200px'}}
-                        variant="contained"
-                        color="info">
-                        {title2}
-                    </Button>
-                    <Button
-                        type="submit"
-                        sx={{width: '200px'}}
-                        variant="contained"
-                        color="primary">
-                        {title}
-                    </Button>
-                </div>
+                    {/* Text */}
+                    <div className={styles.block}>
+                        <TextareaBlock updateData={updateData} enterTextError={enterTextError} setEnterTextError={setEnterTextError}/>
+                    </div>
 
-            </form>
+                    {/* File */}
+                    <div className={styles.block}>
+                       <FileBlock file={file} setFile={setFile} setPreviewTmp={setPreviewTmp} setExtension={setExtension}/>
+                    </div>
 
-        </Paper>
+                    {/* Validation result */}
+                    {isEmptyRequiredFields && <div className={`${styles.error} ${styles.big}`}>There are empty required fields!</div>}
+
+                    <div className={`${styles.sendBtnWrap}`}>
+                        <Button
+                            type="button"
+                            sx={{width: '200px'}}
+                            variant="contained"
+                            onClick={ () => setOpenDialog(true) }
+                            color="info"
+                        >
+                            Preview
+
+                        </Button>
+
+                        <Button
+                            type="submit"
+                            sx={{width: '200px'}}
+                            variant="contained"
+                            color="primary"
+                        >
+                            Add a comment
+                        </Button>
+                    </div>
+
+                </form>
+
+            </Paper>
+
+            <DialogAlert open={openDialog} setOpen={setOpenDialog} >
+                <CommentPreview
+                    data={{...data, createdAt: new Date(Date.now())}}
+                    previewTmp={previewTmp}
+                    extension={extension}
+                    file={file}
+                />
+            </DialogAlert>
+
+        </>
     );
 };
 

@@ -1,3 +1,5 @@
+import { checkTagsStr } from "./check.tags.str";
+
 export const validateForm = (
     data: {userName: string, email: string, homePage: string, captcha: string, text: string},
     setEnterCaptchaError: any, setEnterUserNameError: any, setEnterEmailError: any, setEnterHomePageError: any, setEnterTextError: any) => {
@@ -43,7 +45,10 @@ export const validateForm = (
         setEnterHomePageError(false);
     }
 
-    if ((text.length === 0)) {
+
+    let checkText = checkTagsStr(text);
+
+    if (!text.length || !checkText) {
         setEnterTextError(true);
         isError = true;
     } else {

@@ -4,6 +4,8 @@
   align-items: center;
   padding-bottom: 30px;
   border-bottom: 1px solid #cccccc;
+  margin-bottom: 30px;
+
   @media screen and (max-width: 575px) {
     flex-direction: column;
     justify-content: start;

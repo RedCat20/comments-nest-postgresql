@@ -1,0 +1,20 @@
+.pages {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.page {
+  background: #eae5ef;
+  text-align: center;
+  padding: 10px;
+  min-width: 70px;
+  border-radius: 5px;
+  border: 1px solid gray;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;;
+  &:hover {
+    cursor: pointer;
+  }
+}
