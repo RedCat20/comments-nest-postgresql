@@ -1,6 +1,6 @@
 import * as React from "react";
-import {FC, MouseEvent, ReactNode, useEffect, useRef, useState} from "react";
-import {Avatar, Box, Button, Typography} from "@mui/material";
+import { FC, MouseEvent, ReactNode, useEffect, useRef, useState } from "react";
+import { Avatar, Box, Button, Typography } from "@mui/material";
 import styles from './CommentItem.module.scss';
 import DialogAlert from "../../DialogAlert/DialogAlert";
 import AddForm from "../../AddForm/AddForm";
@@ -8,22 +8,34 @@ import { ConvertedCommentDto } from "../../../types/comment.types";
 import { FilesApi } from "../../../axios";
 import Preview from "../../FilePreview/FilePreview";
 
+const createCommentStyle = (comment: any) => {
+    return {
+        marginLeft: `${20 * comment.level}px`,
+        borderLeft: `${comment.level > 0 ? '2px solid silver' : 'none'}`,
+        paddingLeft: `${comment.level > 0 ? '10px' : '0'}`,
+    }
+}
+
 interface Props {
     comment: ConvertedCommentDto;
     children?: ReactNode;
     sendComment?: any;
     comments?: any;
-
+    lastFile?: any;
     isPreviewOnly?: boolean;
     fileView?: any;
+    extension?: any;
 }
 
 const CommentItem:FC<Props> = ({comment,
-                                   children = null,
-                                   sendComment,
-                                   comments,
-                                   isPreviewOnly= false,
-                                   fileView}) => {
+                               children = null,
+                               sendComment,
+                               comments,
+                               isPreviewOnly= false,
+                               fileView,
+                               extension,
+                               lastFile
+                               }) => {
 
     const [file, setFile] = useState<any>(null);
 
@@ -44,9 +56,10 @@ const CommentItem:FC<Props> = ({comment,
     useEffect(() => {
         if (fileView) {
             setPreviewUrl(fileView);
-            setFile(comment.file)
+            // setFile(comment.file);
+            console.log(fileView, extension)
         }
-    },[fileView]);
+    },[fileView, extension]);
 
     const onShowPreviewHandler = (e: MouseEvent<HTMLImageElement>) => {
         setOpen(true);
@@ -64,7 +77,7 @@ const CommentItem:FC<Props> = ({comment,
         if (comment?.file && !fileView) {
             setFileToPreview();
         }
-    }, [comment?.file]);
+    }, [comment]);
 
     let creatDate;
 
@@ -93,16 +106,11 @@ const CommentItem:FC<Props> = ({comment,
     return (
         <>
             <Box className={styles.comment}
-                 style={{
-                     marginLeft: `${20 * comment.level}px`,
-                     borderLeft: `${comment.level > 0 ? '2px solid silver' : 'none'}`,
-                     paddingLeft: `${comment.level > 0 ? '10px' : '0'}`,
-                }}>
+                 style={createCommentStyle(comment)}>
                 <Box className={styles.top} style={{background: `${comment.parentId === null ? '#e4eefa' : '#f3f3f3'}`}}>
                     <div className={styles.info}>
                         <Avatar/>
                         <Typography variant="subtitle1" sx={{fontWeight: 'bold'}}>
-                            {/*id: {comment.id} -- {comment.userName} -- parent: {comment.parentId ?? 'null'}*/}
                             {comment.userName || 'Anonym'}
                         </Typography>
                         <Typography variant="body1">
@@ -112,19 +120,27 @@ const CommentItem:FC<Props> = ({comment,
                 </Box>
 
                 <Box className={styles.text} sx={{display: 'flex', justifyContent: 'space-between', gap: '30px'}}>
+
                     <div>
-                        <p style={{color: 'gray', borderBottom: '1px dotted gray', paddingBottom: '10px'}}>{comment.email}</p>
+                        <div className={styles.info}>
+                            <p className={styles.contact}>Email: {comment.email}</p>
+                            {comment.homePage &&
+                              <p className={styles.contact}>Site: {comment.homePage}</p>
+                            }
+                        </div>
                         <p dangerouslySetInnerHTML={{__html: comment.text}}></p>
                     </div>
-                    <div style={{marginTop: '30px'}}>{file && <Preview
-                                           isViewMode={true}
-                                           file={file}
+                    <div style={{marginTop: '30px'}}>
+                        {previewUrl && <Preview isViewMode={true}
+                                           file={lastFile || file}
                                            preview={previewUrl}
+                                           extension={extension}
                                            onShowPreviewHandler={onShowPreviewHandler}
                                            onRemoveFileHandler={onRemoveFileHandler}
                                            open={open}
                                            setOpen={setOpen}
-                    />}</div>
+                        />}
+                    </div>
                 </Box>
 
                 {!isPreviewOnly && <Box sx={{marginTop: '20px'}}>
@@ -142,7 +158,13 @@ const CommentItem:FC<Props> = ({comment,
             {children}
 
             <DialogAlert open={openDialog} setOpen={setOpenDialog} >
-                <AddForm comments={comments} sendComment={sendComment} title="Add an answer" parent={comment} specialCallback={() => setOpenDialog(false)}/>
+                <AddForm
+                    comments={comments}
+                    sendComment={sendComment}
+                    title="Add an answer"
+                    parent={comment}
+                    specialCallback={() => setOpenDialog(false)}
+                />
             </DialogAlert>
         </>
     );

@@ -1,44 +1,38 @@
-import {FC, FormEvent, useState} from 'react';
-import {Box, Button, FormControl, FormHelperText, Paper, TextField, Typography} from "@mui/material";
+import { FC, FormEvent, useState } from 'react';
+import { Box, Button, FormControl, FormHelperText, Paper, TextField, Typography } from "@mui/material";
+import { CommentApi, FilesApi } from "../../axios";
+
 import styles from "./AddForm.module.scss";
-import {validateForm} from '../../helpers/validate.form';
-import {CommentApi, FilesApi} from "../../axios";
-import {CommentWithCaptcha, ConvertedCommentDto} from "../../types/comment.types";
+
+import { validateForm } from '../../helpers/validate.form';
+import { CommentWithCaptcha, ConvertedCommentDto } from "../../types/comment.types";
+import { IFormData } from "../../types/form.data";
 import captchaImg from "../../assets/img/captcha.jpg";
+
 import FileBlock from "./FileBlock/FileBlock";
 import TextareaBlock from "./TextAreaBlock/TextareaBlock";
-import {IFormData} from "../../types/form.data";
 import DialogAlert from "../DialogAlert/DialogAlert";
 import CommentPreview from "../CommentPreview/CommentPreview";
 
-export const CORRECT_CAPTCHA = 'smwm';
 
 interface Props {
     title?: string;
-    title2?: string;
-    setIsShow?: (value: boolean) => void;
     specialCallback?: any;
-    parent?: ConvertedCommentDto | null;
+    parent: ConvertedCommentDto | null;
     sendComment: (value: any) => void;
     comments: any;
 }
 
-const AddForm:FC<Props> = ({title,
-                            setIsShow,
-                            specialCallback,
-                            parent,
-                            title2= 'Preview',
-                            sendComment,
-                            comments
-}) => {
+const AddForm:FC<Props> = ({ title, specialCallback, parent, sendComment, comments}) => {
 
-    const [openDialog, setOpenDialog] = useState(false);
+    const [ openDialog, setOpenDialog ] = useState(false);
 
-    const [previewTmp, setPreviewTmp] = useState('');
+    const [ file, setFile ] = useState<File | null>(null);
+    const [ previewTmp, setPreviewTmp ] = useState('');
 
-    const [file, setFile] = useState<File | null>(null);
+    const [ extension, setExtension ] =  useState('');
 
-    const [data, setData] = useState<IFormData>({
+    const [ data, setData ] = useState<IFormData>({
         userName: '',
         email: '',
         homePage: '',
@@ -62,9 +56,11 @@ const AddForm:FC<Props> = ({title,
     const [isEmptyRequiredFields, setIsEmptyRequiredFields] = useState(false);
 
     const onSubmitHandler = async (e: FormEvent<HTMLFormElement>) => {
+
         e.preventDefault();
 
         let isEmpty = false;
+
         if (!(data.userName.length) || !(data.email.length) || !(data.captcha.length) || !(data.text.length)) {
             setIsEmptyRequiredFields(true);
             isEmpty = true;
@@ -91,69 +87,33 @@ const AddForm:FC<Props> = ({title,
 
         try {
             fileName = await FilesApi.addFile(imageFormData);
-            // console.log('fileName: ', fileName);
             if (fileName) {
                 bodyFormData.append('file', fileName);
             }
-            // console.log(file);
-        } catch(err) {
+        }
+        catch(err) {
             console.log(err);
         }
 
         try {
             let comment: CommentWithCaptcha;
 
-            // console.log('All comments from add form: ', comments);
-
             if (parent?.id) {
                 comment = await CommentApi.addComment({...data, answers: [], file: fileName, rootId: parent.rootId, parentId: parent.id, level: (parent.level + 1)});
-
-                // let parentComment = await CommentApi.getOneComment(parent.id.toString());
-
-                // let answers: any = [];
-
-                // if ((parentComment.answers === null) || (parentComment.answers?.length === 0) ) {
-                //    answers = [comment.id];
-                // } else {
-                //     const arr = [...parentComment.answers];
-                //     arr.push(comment.id);
-                //     answers = arr;
-                // }
-
-                // let updatedComment = await CommentApi.updateComment(
-                //    {...parentComment, answers: answers},
-                //    parent.id
-                // );
-
-                // console.log('updatedComment: ', updatedComment);
-
                 sendComment([...comments, comment]);
 
             } else {
                 comment = await CommentApi.addComment({...data, answers: [], file: fileName, parentId: null, level: 1, rootId: null});
-
-                // let updatedComment = await CommentApi.updateComment(
-                //    {...data, answers: comment.answers, parentId: null, level: 1, rootId: comment.id},
-                //    comment.id
-                // );
-
-                //console.log('updatedComment: ', updatedComment);
-
                 sendComment([...comments, comment]);
             }
-
-            // const editedComment: any = {...comment};
-
-            // if (editedComment.captcha)
-            //     delete editedComment.captcha;
-
-        } catch(err) {
+        }
+        catch(err) {
             console.log(err);
-        } finally {
-            if (setIsShow)
-                setIsShow(false);
-            if (specialCallback && specialCallback(true))
+        }
+        finally {
+            if (specialCallback && specialCallback(true)) {
                 specialCallback();
+            }
         }
     }
 
@@ -213,7 +173,7 @@ const AddForm:FC<Props> = ({title,
 
                     {/* File */}
                     <div className={styles.block}>
-                       <FileBlock file={file} setFile={setFile} setPreviewTmp={setPreviewTmp}/>
+                       <FileBlock file={file} setFile={setFile} setPreviewTmp={setPreviewTmp} setExtension={setExtension}/>
                     </div>
 
                     {/* Validation result */}
@@ -227,7 +187,7 @@ const AddForm:FC<Props> = ({title,
                             onClick={ () => setOpenDialog(true) }
                             color="info"
                         >
-                            {title2}
+                            Preview
 
                         </Button>
 
@@ -235,8 +195,9 @@ const AddForm:FC<Props> = ({title,
                             type="submit"
                             sx={{width: '200px'}}
                             variant="contained"
-                            color="primary">
-                            {title}
+                            color="primary"
+                        >
+                            Add a comment
                         </Button>
                     </div>
 
@@ -245,7 +206,12 @@ const AddForm:FC<Props> = ({title,
             </Paper>
 
             <DialogAlert open={openDialog} setOpen={setOpenDialog} >
-                <CommentPreview comment={{userName: data.userName, email: data.email, homePage: data.homePage, text: data.text, createdAt: new Date(Date.now()), file: file}} previewTmp={previewTmp} />
+                <CommentPreview
+                    data={{...data, createdAt: new Date(Date.now())}}
+                    previewTmp={previewTmp}
+                    extension={extension}
+                    file={file}
+                />
             </DialogAlert>
 
         </>

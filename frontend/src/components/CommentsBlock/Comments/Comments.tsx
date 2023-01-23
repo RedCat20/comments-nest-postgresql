@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from 'react';
-import styles from "../AllComments/AllComments.module.scss";
+import styles from "./Comments.module.scss";
 import { ConvertedCommentDto } from "../../../types/comment.types";
-import Comment from "../CommentItem/Comment";
+import Comment from "../CommentItem/CommentItem";
 
 interface Props {
     comments: any[];

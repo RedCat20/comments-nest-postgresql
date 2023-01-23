@@ -32,7 +32,7 @@
   display: grid;
   grid-template-columns: auto auto auto;
   align-items: center;
-  gap: 10px;
+  gap: 30px;
 
   h6 {
     overflow: hidden;
@@ -54,4 +54,10 @@
 
 .filePreview {
   width: 150px;
+}
+
+.contact {
+  color: gray;
+  border-bottom: 1px dotted gray;
+  padding-bottom: 10px;
 }

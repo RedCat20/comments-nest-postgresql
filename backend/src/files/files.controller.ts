@@ -14,7 +14,7 @@ export class FilesController {
         const fieldName = `${filename}`;
         res.setHeader('Content-Type', 'application/octet-stream');
         res.attachment(fieldName);
-        return res.sendFile( join(__dirname, '../../files/', fieldName));
+        return res.sendFile( join(__dirname, '../../upload/', fieldName));
     }
 
     @Post("files")

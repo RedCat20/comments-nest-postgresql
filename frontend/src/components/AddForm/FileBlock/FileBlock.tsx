@@ -6,10 +6,13 @@ import Preview from "../../FilePreview/FilePreview";
 interface Props {
     file: File | null;
     setFile: (file: File | null) => void;
+
     setPreviewTmp: (file: string) => void;
+    setExtension: (extension: string) => void;
 }
 
-const FileBlock:FC<Props> = ({file, setFile,setPreviewTmp}) => {
+const FileBlock:FC<Props> = ({file, setFile, setPreviewTmp, setExtension}) => {
+
     const [previewUrl, setPreviewUrl] = useState<string>('');
     const [open, setOpen] = useState(false);
 
@@ -18,7 +21,12 @@ const FileBlock:FC<Props> = ({file, setFile,setPreviewTmp}) => {
     const onChangeFileHandler = (e: ChangeEvent<HTMLInputElement> & {target: {files: File[], result: any}}) => {
         let uploadFile = e.target.files[0];
         setFile(uploadFile);
-        setPreviewTmp(URL.createObjectURL(uploadFile));
+
+        let fakeUrl = URL.createObjectURL(uploadFile);
+
+        setExtension(uploadFile.name.substring(uploadFile.name.length - 3, uploadFile.name.length));
+
+        setPreviewTmp(fakeUrl);  /// => url without extension, such as for blob
     }
 
     const onRemoveFileHandler = (e: MouseEvent<HTMLButtonElement | HTMLInputElement>) => {

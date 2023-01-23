@@ -9,7 +9,7 @@ interface Props {
     comments: any;
 }
 
-const TopPanel:FC<Props> = ({sendComment,comments}) => {
+const TopPanel:FC<Props> = ({ sendComment,comments }) => {
 
     const [open, setOpen] = useState(false);
 

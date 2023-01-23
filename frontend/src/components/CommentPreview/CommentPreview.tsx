@@ -1,34 +1,40 @@
-import { FC } from 'react';
-import { Paper, Typography } from "@mui/material";
+import { FC, useEffect } from 'react';
+import { Paper } from "@mui/material";
 import styles from "./CommentPreview.module.scss";
-import CommentItem from "../CommentsBlock/CommentItem/Comment";
+import CommentItem from "../CommentsBlock/CommentItem/CommentItem";
 
 interface Props {
-    title?: string;
-    comment: any;
-    previewTmp: any;
+    data: any;
+    file: any;
+    previewTmp: string;
+    extension: string;
 }
 
-const CommentPreview:FC<Props> = ({ title, comment, previewTmp  }) => {
+const CommentPreview:FC<Props> = ({ data,file, previewTmp,extension }) => {
 
+    useEffect(() => {
+        /// => url without extension, such as for blob
+        console.log('previewTmp: ', previewTmp);
+        console.log('extension: ', extension);
+    },[previewTmp, extension]);
 
     return (
         <Paper className={styles.previewWindow}>
 
-            <CommentItem comment={comment} fileView={previewTmp} isPreviewOnly/>
+            <CommentItem comment={data} fileView={previewTmp} lastFile={file} extension={extension} isPreviewOnly/>
 
             <div className={styles.table}>
                 <div className={styles.block}>
-                    <div>User name:</div> <div>{comment.userName}</div>
+                    <div>User name:</div> <div>{data.userName}</div>
                 </div>
                 <div className={styles.block}>
-                    <div>Email:</div> <div>{comment.email}</div>
+                    <div>Email:</div> <div>{data.email}</div>
                 </div>
                 <div className={styles.block}>
-                    <div>Homepage:</div> <div>{comment.homePage}</div>
+                    <div>Homepage:</div> <div>{data.homePage}</div>
                 </div>
                 <div className={styles.block}>
-                    <div>Comment text:</div> <div dangerouslySetInnerHTML={{__html: comment.text }}></div>
+                    <div>Comment text:</div> <div dangerouslySetInnerHTML={{__html: data.text }}></div>
                 </div>
             </div>
         </Paper>
