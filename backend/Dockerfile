@@ -10,6 +10,8 @@ COPY . .
 
 COPY ./dist ./dist
 
+CMD ["npm", "run", "build"]
+
 EXPOSE 5000
 
 CMD ["npm", "run", "start:dev"]
