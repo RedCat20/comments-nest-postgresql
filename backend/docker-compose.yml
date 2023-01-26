@@ -2,14 +2,14 @@ version: '3.0'
 
 services:
   backend:
-    container_name: nest
+    container_name: main
     build:
       context: .
     env_file:
-      - backend/.development.env
+      - .development.env
     volumes:
       - .:/app
-      - /backend/node_modules
+      - /app/node_modules
     ports:
       - 5000:5000
       - 9229:9229
@@ -22,7 +22,7 @@ services:
     container_name: postgres
     image: postgres:12
     env_file:
-      - /backend/.development.env
+      - .development.env
     environment:
       PG_DATA: /var/lib/postgresql/data
     ports:
@@ -34,7 +34,7 @@ services:
   frontend:
     container_name: react
     build:
-      context: .
+      context: ..
     depends_on:
       - backend
       - postgres
