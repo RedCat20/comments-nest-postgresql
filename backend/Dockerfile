@@ -8,9 +8,9 @@ RUN npm install
 
 COPY . .
 
-COPY ./dist ./dist
-
 CMD ["npm", "run", "build"]
+
+COPY ./dist ./dist
 
 EXPOSE 5000
 
