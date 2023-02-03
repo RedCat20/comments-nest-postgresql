@@ -5,7 +5,7 @@ export const CommentApi = {
 
     async getMainComments(currentPage: number | string, sort: string) {
         const baseUrl = getBaseUrl();
-        const { data } = await instance.get(`comments/?page=${currentPage || 1}&sort=${sort}`);
+        const { data } = await instance.get(`/comments/?page=${currentPage || 1}&sort=${sort}`);
         return data;
     },
 
