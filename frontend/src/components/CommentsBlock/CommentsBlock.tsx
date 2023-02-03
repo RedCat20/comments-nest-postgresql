@@ -4,7 +4,7 @@ import styles from "./CommentsBlock.module.scss";
 
 import { CreateCommentDtoWithId } from "../../types/comment.types";
 import { CommentApi } from "../../axios";
-import io, {Socket} from "socket.io-client";
+// import io, {Socket} from "socket.io-client";
 
 import TopPanel from "../TopPanel/TopPanel";
 import Comments from "./Comments/Comments";
