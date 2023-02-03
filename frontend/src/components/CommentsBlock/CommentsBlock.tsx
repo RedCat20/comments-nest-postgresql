@@ -62,7 +62,7 @@ const CommentsBlock:FC<Props> = ({ }) => {
     }
 
     useEffect(() => {
-        const HOST = window.location.origin.replace(/^http/, 'ws');
+        const HOST = window.location.origin.replace(/^https/, 'ws');
         const newSocket = io(HOST);
         setSocket(newSocket);
     },[setSocket]);

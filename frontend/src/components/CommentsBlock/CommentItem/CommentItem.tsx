@@ -66,9 +66,9 @@ const CommentItem:FC<Props> = ({comment,
     }
 
     const setFileToPreview = async () => {
-        const url = `${'https://comments-backend-9tdh.onrender.com' || 'http://localhost'}:${'https://comments-backend-9tdh.onrender.com' || 5000}/upload/${comment?.file}`;
+        const url = `${'https://comments-backend-9tdh.onrender.com' || 'http://localhost'}/upload/${comment?.file}`;
         setPreviewUrl(url);
-        let blob = await fetch(url).then(r => r.blob());
+        let blob = await fetch(url).then(r => r.blob()).catch(err => console.log('error', err));
         // @ts-ignore
         setFile(blob);
     }
