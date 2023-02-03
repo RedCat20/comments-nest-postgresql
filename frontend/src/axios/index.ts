@@ -6,7 +6,8 @@ const HOST = 'https://comments-backend-9tdh.onrender.com' || 'http://localhost';
 export const getBaseUrl = () => {
     console.log('PORT: ', PORT)
     console.log('HOST: ', HOST)
-    return`${HOST}:${PORT}`;
+    // return`${HOST}:${PORT}`;
+    return`${HOST}}`;
 }
 
 export const instance = axios.create({
