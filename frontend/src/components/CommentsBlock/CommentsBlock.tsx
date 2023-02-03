@@ -19,7 +19,7 @@ const CommentsBlock:FC<Props> = ({ }) => {
     const [ comments, setComments ] = useState<CreateCommentDtoWithId[]>([]);
     const [ count, setCount ] = useState<number>(0);
 
-    const [ socket, setSocket ] = useState<Socket>();
+    // const [ socket, setSocket ] = useState<Socket>();
 
     const [ sort, setSort ] = useState<string>('createdAt_desc');
 
@@ -57,28 +57,28 @@ const CommentsBlock:FC<Props> = ({ }) => {
 
 
     const sendComment = (comments: any) => {
-        console.log('sendComment comment: ', comments);
-        socket?.emit('comment', comments);
-    }
+         console.log('sendComment comment: ', comments);
+        // socket?.emit('comment', comments);
+     }
 
-    useEffect(() => {
-        const newSocket = io(`${'https://comments-backend-9tdh.onrender.com' || 'http://localhost'}:${8001 || 8001}`);
-        setSocket(newSocket);
-    },[setSocket]);
+    // useEffect(() => {
+        // const newSocket = io(`${'https://comments-backend-9tdh.onrender.com' || 'http://localhost'}:${8001 || 8001}`);
+        // setSocket(newSocket);
+    // },[setSocket]);
 
-    const messageListener = (comments: any) => {
-        console.log('Comment listener new comments', comments)
+    // const messageListener = (comments: any) => {
+        // console.log('Comment listener new comments', comments)
 
-        getComments().then(r => r);
+        // getComments().then(r => r);
         // setComments(comments)
-    }
+    // }
 
-    useEffect(() => {
-        socket?.on('comment', messageListener)
-        return () => {
-            socket?.off('comment', messageListener);
-        }
-    },[messageListener]);
+    // useEffect(() => {
+        // socket?.on('comment', messageListener)
+        // return () => {
+            // socket?.off('comment', messageListener);
+        // }
+    // },[messageListener]);
 
 
     ///// Sorting
