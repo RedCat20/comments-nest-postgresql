@@ -62,7 +62,7 @@ const CommentsBlock:FC<Props> = ({ }) => {
     }
 
     useEffect(() => {
-        const newSocket = io(`${process.env.BACKEND_SOCKET_HOST || 'http://localhost'}:${process.env.BACKEND_SOCKET_PORT || 8001}`);
+        const newSocket = io(`${'https://comments-backend-9tdh.onrender.com' || 'http://localhost'}:${8001 || 8001}`);
         setSocket(newSocket);
     },[setSocket]);
 
