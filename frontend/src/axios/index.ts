@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const PORT = process.env.BACKEND_PORT || 5000;
-const HOST = process.env.BACKEND_HOST || 'http://localhost';
+const PORT = 10000 || 5000;
+const HOST = 'https://comments-backend-9tdh.onrender.com' || 'http://localhost';
 
 export const getBaseUrl = () => {
     console.log('PORT: ', PORT)
