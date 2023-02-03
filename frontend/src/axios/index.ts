@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const PORT = process.env.POSTGRES_PORT || 5000;
-const HOST = process.env.POSTGRES_HOST || 'http://localhost';
+const PORT = process.env.BACKEND_PORT || 5000;
+const HOST = process.env.BACKEND_HOST || 'http://localhost';
 
 export const getBaseUrl = () => {
     console.log('PORT: ', PORT)
