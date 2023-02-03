@@ -66,7 +66,7 @@ const CommentItem:FC<Props> = ({comment,
     }
 
     const setFileToPreview = async () => {
-        const url = `${process.env.POSTGRES_BACKEND_HOST || 'http://localhost'}:${process.env.POSTGRES_BACKEND_PORT || '5000'}/upload/${comment?.file}`;
+        const url = `${process.env.BACKEND_HOST || 'http://localhost'}:${process.env.BACKEND_PORT || '5000'}/upload/${comment?.file}`;
         setPreviewUrl(url);
         let blob = await fetch(url).then(r => r.blob());
         // @ts-ignore
