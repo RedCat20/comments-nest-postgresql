@@ -62,7 +62,8 @@ const CommentsBlock:FC<Props> = ({ }) => {
     }
 
     useEffect(() => {
-        const newSocket = io(`${'ws://comments-backend-9tdh.onrender.com' || 'ws://localhost:8001'}`);
+        const HOST = window.location.origin.replace(/^http/, 'ws');
+        const newSocket = io(HOST);
         setSocket(newSocket);
     },[setSocket]);
 
