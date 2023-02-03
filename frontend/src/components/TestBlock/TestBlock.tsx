@@ -16,7 +16,7 @@ const TestBlock = () => {
     }
 
     useEffect(() => {
-        const newSocket = io('http://localhost:8001');
+        const newSocket = io(`${process.env.POSTGRES_BACKEND_SOCKET_HOST || 'http://localhost'}:${process.env.POSTGRES_BACKEND_SOCKET_PORT || '8001'}`);
         setSocket(newSocket);
     },[setSocket]);
 
