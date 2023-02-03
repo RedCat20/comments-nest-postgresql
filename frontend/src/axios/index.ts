@@ -10,7 +10,7 @@ export const getBaseUrl = () => {
 }
 
 export const instance = axios.create({
-   // baseURL: getBaseUrl()
+   baseURL: getBaseUrl()
 });
 
 export { FilesApi } from './FilesApi';
