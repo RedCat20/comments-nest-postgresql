@@ -62,7 +62,10 @@ const CommentsBlock:FC<Props> = ({ }) => {
     }
 
     useEffect(() => {
-        const HOST = window.location.origin.replace(/^http/, 'ws');
+        // const HOST = window.location.origin.replace(/^http/, 'wss');
+        // const HOST = window.location.origin.replace(/^http/, 'wss');
+        const HOST = 'https://comments-backend-9tdh.onrender.com:8001/'.replace(/^https/, 'wss');
+        // let socket = new WebSocket("wss://javascript.info/article/websocket/demo/hello");
         const newSocket = io(HOST);
         setSocket(newSocket);
     },[setSocket]);
