@@ -19,7 +19,7 @@ const CommentsBlock:FC<Props> = ({ }) => {
     const [ comments, setComments ] = useState<CreateCommentDtoWithId[]>([]);
     const [ count, setCount ] = useState<number>(0);
 
-    const [ socket, setSocket ] = useState<Socket>();
+    const [ socket, setSocket ] = useState<any>();
 
     const [ sort, setSort ] = useState<string>('createdAt_desc');
 
@@ -64,9 +64,9 @@ const CommentsBlock:FC<Props> = ({ }) => {
     useEffect(() => {
         // const HOST = window.location.origin.replace(/^http/, 'wss');
         // const HOST = window.location.origin.replace(/^http/, 'wss');
-        const HOST = 'https://comments-backend-9tdh.onrender.com:8001/'.replace(/^https/, 'wss');
+        const HOST = 'wss://comments-backend-9tdh.onrender.com:8001';
         // let socket = new WebSocket("wss://javascript.info/article/websocket/demo/hello");
-        const newSocket = io(HOST);
+        const newSocket = new WebSocket(HOST);
         setSocket(newSocket);
     },[setSocket]);
 
