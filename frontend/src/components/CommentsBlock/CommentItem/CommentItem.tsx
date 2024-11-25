@@ -66,7 +66,7 @@ const CommentItem:FC<Props> = ({comment,
     }
 
     const setFileToPreview = async () => {
-        const url = `https://comments-backend-9tdh.onrender.com/upload/${comment?.file}`;
+        const url = `https://comments-nest-postgresql.onrender.com/upload/${comment?.file}`;
         setPreviewUrl(url);
         let blob = await fetch(url).then(r => r.blob()).catch(err => console.log('error', err));
         // @ts-ignore
