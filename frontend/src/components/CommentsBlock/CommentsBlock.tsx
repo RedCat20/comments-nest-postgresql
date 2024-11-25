@@ -64,7 +64,8 @@ const CommentsBlock:FC<Props> = ({ }) => {
     useEffect(() => {
         // const HOST = window.location.origin.replace(/^http/, 'wss');
         // const HOST = window.location.origin.replace(/^http/, 'wss');
-        const HOST = 'wss://comments-backend-9tdh.onrender.com:8001';
+        const HOST = 'wss://comments-nest-postgresql.onrender.com:8001';
+        // const HOST = 'wss://comments-backend-9tdh.onrender.com:8001';
         // let socket = new WebSocket("wss://javascript.info/article/websocket/demo/hello");
         const newSocket = new WebSocket(HOST);
         setSocket(newSocket);
