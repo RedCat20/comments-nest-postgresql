@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const PORT = 10000 || 5000;
-const HOST = 'https://comments-backend-9tdh.onrender.com' || 'http://localhost';
+const HOST = 'https://comments-nest-postgresql.onrender.com' || 'http://localhost';
 
 export const getBaseUrl = () => {
     console.log('PORT: ', PORT)
