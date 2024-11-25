@@ -74,7 +74,7 @@ export class CommentsService {
         let limit = 25
         let offset = 0 + (page - 1) * limit;
 
-        const sortParams = sort.split('_');
+        const sortParams = sort && sort.split('_');
         sortParams[1] = sortParams[1].toUpperCase();
 
         const comments = await this.commentRepository.findAndCountAll(
@@ -105,7 +105,7 @@ export class CommentsService {
         let limit = 25
         let offset = 0 + (page - 1) * limit;
 
-        const sortParams = sort.split('_');
+        const sortParams = sort && sort.split('_');
         sortParams[1] = sortParams[1].toUpperCase();
 
         const comments = await this.commentRepository.findAndCountAll(
