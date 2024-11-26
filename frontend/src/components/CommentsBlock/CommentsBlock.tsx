@@ -19,7 +19,7 @@ const CommentsBlock:FC<Props> = ({ }) => {
     const [ comments, setComments ] = useState<CreateCommentDtoWithId[]>([]);
     const [ count, setCount ] = useState<number>(0);
 
-    const [ socket, setSocket ] = useState<any>();
+    // const [ socket, setSocket ] = useState<any>();
 
     const [ sort, setSort ] = useState<string>('createdAt_desc');
 
@@ -58,18 +58,18 @@ const CommentsBlock:FC<Props> = ({ }) => {
 
     const sendComment = (comments: any) => {
         console.log('sendComment comment: ', comments);
-        socket?.emit('comment', comments);
+        // socket?.emit('comment', comments);
     }
 
-    useEffect(() => {
+    // useEffect(() => {
         // const HOST = window.location.origin.replace(/^http/, 'wss');
         // const HOST = window.location.origin.replace(/^http/, 'wss');
-        const HOST = 'wss://comments-nest-postgresql.onrender.com:8001';
+        // const HOST = 'wss://comments-nest-postgresql.onrender.com:8001';
         // const HOST = 'wss://comments-backend-9tdh.onrender.com:8001';
         // let socket = new WebSocket("wss://javascript.info/article/websocket/demo/hello");
-        const newSocket = new WebSocket(HOST);
-        setSocket(newSocket);
-    },[setSocket]);
+        // const newSocket = new WebSocket(HOST);
+        // setSocket(newSocket);
+    // },[setSocket]);
 
     const messageListener = (comments: any) => {
         console.log('Comment listener new comments', comments)
@@ -78,12 +78,12 @@ const CommentsBlock:FC<Props> = ({ }) => {
         // setComments(comments)
     }
 
-    useEffect(() => {
-        socket?.on('comment', messageListener)
-        return () => {
-            socket?.off('comment', messageListener);
-        }
-    },[messageListener]);
+    // useEffect(() => {
+    //     socket?.on('comment', messageListener)
+    //     return () => {
+    //         socket?.off('comment', messageListener);
+    //     }
+    // },[messageListener]);
 
 
     ///// Sorting
