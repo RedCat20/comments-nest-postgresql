@@ -57,7 +57,8 @@ const CommentsBlock:FC<Props> = ({ }) => {
 
 
     const sendComment = (comments: any) => {
-        console.log('sendComment comment: ', comments);
+        window.location.reload();
+        // console.log('sendComment comment: ', comments);
         // socket?.emit('comment', comments);
     }
 
